@@ -289,8 +289,7 @@
                 <div>
                     <label for="yearSelect">Pilih Tahun: </label>
                     <select id="yearSelect" class="form-select" style="width: auto;">
-                        <option value="2025" {{ 2025 == date('Y') ? 'selected' : '' }}>2025</option>
-                        <option value="2026">2026</option>
+                        <!-- Pilihan tahun akan ditambahkan oleh JavaScript -->
                     </select>
                 </div>
             </div>
@@ -309,18 +308,19 @@
             <table class="table table-bordered mt-4">
                 <thead>
                     <tr>
-                        <th rowspan="2" class="text-center">No</th>
+                        <th rowspan="2" class="text-center">ID</th>
                         <th rowspan="2" class="text-center">Nama Karyawan</th>
                         <th colspan="31" class="text-center">Hari/Tanggal</th>
+                        <tr class="text-center" id="dayHeaders">
+                            <!-- Header tanggal akan diubah dengan JavaScript -->
+                        </th>
                     </tr>
                     <tr>
-                        @for ($i = 1; $i <= 31; $i++)
-                            <th>{{ $i }}</th>
-                        @endfor
+                        <!-- Baris ini akan diisi dengan hari/tanggal secara dinamis -->
                     </tr>
                 </thead>
                 <tbody>
-
+                    <!-- Data absensi akan diisi di sini -->
                 </tbody>
             </table>
         </div>
@@ -331,6 +331,43 @@
     function toggleSidebar() {
         document.querySelector('.sidebar').classList.toggle('show');
     }
+
+    // Fungsi untuk menghitung jumlah hari dalam bulan tertentu
+    function getDaysInMonth(month, year) {
+        return new Date(year, month, 0).getDate();
+    }
+
+    // Fungsi untuk memperbarui kolom tanggal di tabel
+    function updateTable() {
+        var month = document.getElementById('monthSelect').value;
+        var year = document.getElementById('yearSelect').value;
+        var daysInMonth = getDaysInMonth(month, year);
+
+        // Update header tanggal
+        var dayHeaders = document.getElementById('dayHeaders');
+        dayHeaders.innerHTML = ''; // Kosongkan sebelumnya
+        for (var i = 1; i <= daysInMonth; i++) {
+            var th = document.createElement('th');
+            th.innerText = i;
+            dayHeaders.appendChild(th);
+        }
+    }
+
+    // Menambahkan event listener untuk update tabel ketika bulan atau tahun dipilih
+    document.getElementById('monthSelect').addEventListener('change', updateTable);
+    document.getElementById('yearSelect').addEventListener('change', updateTable);
+
+    // Membuat pilihan tahun dinamis
+    for (var i = 2025; i <= 2040; i++) {
+        var option = document.createElement('option');
+        option.value = i;
+        option.innerText = i;
+        document.getElementById('yearSelect').appendChild(option);
+    }
+
+    // Memperbarui tabel saat pertama kali dimuat
+    updateTable();
 </script>
+
 </body>
 </html>

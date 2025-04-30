@@ -53,7 +53,10 @@ Route::middleware('auth')->group(function () {
 });
 
 // Menampilkan halaman daftar absensi
-Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
+// Menampilkan halaman daftar absensi
+// Ubah ini:
+Route::get('absensi', [AbsensiController::class, 'showAbsensi'])->name('absensi.index');
 
-// Upload file Excel / CSV absensi
-Route::post('/absensi/upload', [AbsensiController::class, 'upload'])->name('absensi.upload');
+Route::post('absensi/upload', [AbsensiController::class, 'upload'])->name('absensi.upload');
+Route::post('absensi/import', [AbsensiController::class, 'import'])->name('absensi.import');// Mengubah URL untuk showAbsensi
+Route::get('absensi/dashboard', [AbsensiController::class, 'dashboard'])->name('absensi.dashboard');

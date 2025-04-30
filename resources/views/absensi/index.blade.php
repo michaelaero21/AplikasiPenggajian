@@ -1,73 +1,98 @@
 @extends('layouts.absensi')
+
 @section('title', 'Daftar Absensi Karyawan')
+
 @section('content')
 <div class="container mx-auto p-4">
+    <div class="flex justify-center items-center space-x-4 mb-4" x-data="{
+        month: '{{ $month }}',
+        year: '{{ $year }}',
+        karyawans: @json($karyawans),
+        changeMonth(direction) {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            let currentIndex = months.indexOf(this.month);
+            currentIndex += direction;
 
-    <!-- Menyisipkan Tahun dan Bulan ke dalam Alpine.js -->
-    <div class="flex justify-center items-center space-x-4 mb-4" x-data="{ 
-        month: '{{ now()->format('F') }}', 
-        year: '{{ $year ?? now()->year }}' 
+            if (currentIndex < 0) {
+                this.month = months[11];
+                this.year--;
+            } else if (currentIndex > 11) {
+                this.month = months[0];
+                this.year++;
+            } else {
+                this.month = months[currentIndex];
+            }
+
+            window.location.href = `?month=${this.month}&year=${this.year}`;
+        },
+        getDaysInMonth() {
+            const date = new Date(this.year, new Date(Date.parse(this.month + ' 1, ' + this.year)).getMonth() + 1, 0);
+            return Array.from({ length: date.getDate() }, (_, i) => i + 1);
+        },
+        getStatus(karyawan, day) {
+            const absensi = karyawan.absensi.find(absen => new Date(absen.tanggal).getDate() === day);
+            return absensi ? absensi.status : 'empty';
+        },
+        getColor(karyawan, day) {
+            let status = this.getStatus(karyawan, day);
+            if (status === 'empty') {
+                return 'white';
+            }
+            // Jika status mengandung jam (format "07:00 - 16:00"), anggap hadir
+            if (status.includes('-')) {
+                return '#90ee90'; // hijau
+            }
+            return '#ff4d4d'; // merah untuk status selain itu
+        }
     }">
         <button @click="changeMonth(-1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">←</button>
         <div class="text-lg font-semibold" x-text="month + ' ' + year"></div>
         <button @click="changeMonth(1)" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">→</button>
     </div>
 
-    <!-- Upload File -->
-    <div class="flex justify-center mb-4">
-        <form action="{{ route('absensi.upload') }}" method="POST" enctype="multipart/form-data" class="flex space-x-2">
-            @csrf
-            <input type="file" name="file" accept=".xlsx, .xls, .csv" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Upload</button>
-        </form>
-    </div>
-
-    <!-- Tabel Absensi -->
     <div class="overflow-x-auto">
         <table class="table-auto w-full border border-gray-300 text-sm">
             <thead class="bg-gray-100">
                 <tr>
                     <th class="border px-2 py-1 text-center" rowspan="2">No</th>
                     <th class="border px-2 py-1 text-center" rowspan="2">Nama Karyawan</th>
-                    <th class="border px-2 py-1 text-center" colspan="31">Hari/Tanggal</th>
+                    <th class="border px-2 py-1 text-center" colspan="31">Hari / Tanggal</th>
                 </tr>
-                <!-- Baris kedua adalah untuk header hari/tanggal -->
                 <tr>
-                    @for ($i = 1; $i <= 31; $i++)
-                        <th class="border px-2 py-1 text-center" style="min-width: 40px;">{{ $i }}</th>
-                    @endfor
+                    <template x-for="day in getDaysInMonth()" :key="day">
+                        <th class="border px-2 py-1 text-center" style="min-width: 40px;" x-text="day"></th>
+                    </template>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($karyawans as $index => $karyawan)
+                <template x-for="(karyawan, index) in karyawans" :key="karyawan.id">
                     <tr>
-                        <td class="border px-2 py-1 text-center">{{ $index + 1 }}</td>
-                        <td class="border px-2 py-1">{{ $karyawan->nama }}</td>
-                        @for ($i = 1; $i <= 31; $i++)
-                            @php
-                                $status = $karyawan->absensi[$i] ?? 'empty'; // Status hadir/absen kosong
-                                // Background color based on status
-                                $color = $status == 'hadir' ? '#90ee90' : ($status == 'absen' ? '#ff4d4d' : 'white');
-                            @endphp
-                            <td class="border px-2 py-1 text-center" style="background-color: {{ $color }}"></td>
-                        @endfor
+                        <td class="border px-2 py-1 text-center" x-text="index + 1"></td>
+                        <td class="border px-2 py-1" x-text="karyawan.nama"></td>
+                        <template x-for="day in getDaysInMonth()" :key="day">
+                            <td class="border px-2 py-1 text-center"
+                                :style="{ backgroundColor: getColor(karyawan, day) }"
+                                x-text="getStatus(karyawan, day) !== 'empty' ? getStatus(karyawan, day) : ''">
+                            </td>
+                        </template>
                     </tr>
-                @endforeach
+                </template>
             </tbody>
         </table>
     </div>
 </div>
-
-<!-- Alpine.js for month change -->
-<script src="//unpkg.com/alpinejs" defer>
-    function changeMonth(direction) {
-        if (direction === -1 && month === 'January') { 
-            month = 'December'; year--; 
-        } else if (direction === 1 && month === 'December') { 
-            month = 'January'; year++; 
-        } else {
-            month = new Date(year, new Date(Date.parse(month + ' 1, ' + year)).getMonth() + direction).toLocaleString('default', { month: 'long' });
-        }
-    }
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('absensi', () => ({
+            getStatus(karyawan, day) {
+                let absensi = karyawan.absensi.find(absen => new Date(absen.tanggal).getDate() === day);
+                return absensi ? absensi.status : 'empty';
+            },
+            getColor(karyawan, day) {
+                let status = this.getStatus(karyawan, day);
+                return status === 'hadir' ? '#90ee90' : (status === 'absen' ? '#ff4d4d' : 'white');
+            }
+        }));
+    });
 </script>
 @endsection

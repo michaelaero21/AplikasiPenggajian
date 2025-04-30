@@ -13,9 +13,11 @@ class CreateAbsensisTable extends Migration
             $table->id();
             $table->foreignId('karyawan_id')->constrained('karyawans')->onDelete('cascade');
             $table->date('tanggal');
-            $table->string('status'); // Adjust according to your actual columns
+            $table->time('jam_masuk')->nullable();  // Untuk jam masuk
+            $table->time('jam_pulang')->nullable(); // Untuk jam pulang
             $table->timestamps();
         });
+        
     }
 
     public function down()
