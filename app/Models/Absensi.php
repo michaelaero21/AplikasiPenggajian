@@ -8,12 +8,27 @@ class Absensi extends Model
 {
     use HasFactory;
 
-    protected $table = 'absensis';  // Adjust if necessary
+    protected $table = 'absensis';
 
-    protected $fillable = ['karyawan_id', 'tanggal', 'status'];  // Adjust according to your columns
+    protected $fillable = [
+        'karyawan_id',
+        'nama_karyawan',
+        'tanggal',
+        'jam_masuk',
+        'jam_pulang',
+        'status'
+    ];
 
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'karyawan_id');
+    }
+
+    protected static function booted()
+    {
+        static::saving(function ($absensi) {
+            // Otomatis set status berdasarkan data jam masuk & jam pulang
+            $absensi->status = ($absensi->jam_masuk && $absensi->jam_pulang) ? 'H' : 'I';
+        });
     }
 }

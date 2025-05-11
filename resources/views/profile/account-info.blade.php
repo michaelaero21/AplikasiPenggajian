@@ -16,10 +16,13 @@
 @endphp
 
 <div class="text-center mb-4">
-    <img src="{{ $user->profile_photo ? asset('storage/profile_photos/' . $user->profile_photo) : asset('images/default.png') }}"
-         alt="Foto Profil"
-         class="rounded-circle shadow" width="120" height="120"
-         style="object-fit: cover; border: 3px solid #fff;">
+        @if ($user->profile_photo)
+            <img src="{{ asset('storage/profile_photos/' . $user->profile_photo) }}" alt="Foto Profil" 
+            class="rounded-circle" width="120" height="120" style="object-fit: cover; border: 2px solid #fff;">
+            @else
+                <!-- Ikon Default jika Tidak Ada Foto -->
+                <i class="bi bi-person-circle" style="font-size: 120px; color: #fff;"></i>
+            @endif
     <h4 class="mt-3">{{ $user->name }}</h4>
     <p class="text-muted mb-0">{{ $user->email }}</p>
 </div>

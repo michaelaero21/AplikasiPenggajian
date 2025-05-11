@@ -198,6 +198,11 @@
             border-radius: 10px;
             color: white;
         }
+        .form-create-gaji, 
+        .form-tambah-karyawan,
+        .form-edit-karyawan, .form-edit-gaji{
+            color: black;
+        } 
         
 
         @media (max-width: 768px) {
@@ -230,6 +235,7 @@
 <div class="wrapper">
     <div class="sidebar">
         <div class="text-center mb-4 position-relative">
+        @if (Auth::check())
             <a href="{{ route('profile.show') }}" class="profile-box {{ request()->is('profile*') ? 'active' : '' }}">
                 @if (Auth::user()->profile_photo)
                     <img src="{{ asset('storage/profile_photos/' . Auth::user()->profile_photo) }}" alt="Foto Profil" class="rounded-circle" width="80" height="80" style="object-fit: cover; border: 2px solid #fff;">
@@ -238,6 +244,7 @@
                 @endif
                 <h4>Hello, {{ Auth::user()->name }}!</h4>
             </a>
+        @endif
         </div>
 
         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">

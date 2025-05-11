@@ -21,7 +21,13 @@ class Karyawan extends Model
 
     public function absensi()
     {   
-        return $this->hasMany(Absensi::class, 'karyawan_id'); // Assuming 'karyawan_id' is the foreign key
+        return $this->hasMany(Absensi::class, 'karyawan_id')->latest('tanggal'); // Assuming 'karyawan_id' is the foreign key
+    }
+    public function delete()
+    {
+        // Menghapus semua absensi terkait secara permanen
+        $this->absensi()->forceDelete();
+        parent::delete();
     }
 
 }

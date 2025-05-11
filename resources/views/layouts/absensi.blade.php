@@ -8,233 +8,72 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-
+        body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin: 0; padding: 0; }
         .sidebar {
-            width: 250px;
-            background: #333;
-            color: white;
-            height: 100vh;
-            position: fixed;
-            padding: 20px;
-            transition: transform 0.3s ease-in-out;
-            z-index: 100;
+            width: 250px; background: #333; color: white; height: 100vh;
+            position: fixed; padding: 20px; transition: transform 0.3s; z-index: 100;
         }
-
-        .sidebar h4 {
-            text-align: center;
-            font-size: 18px;
-            margin-top: 10px;
-        }
-
-        .sidebar a {
-            display: block;
-            color: white;
-            padding: 10px;
-            text-decoration: none;
-            margin: 5px 0;
-            border-radius: 5px;
-        }
-
-        .sidebar a.active,
-        .sidebar a:hover {
-            background: #6c5ce7;
-        }
-
-        .profile-box {
-            text-align: center;
-            padding: 10px;
-            border-radius: 10px;
-            transition: background 0.3s ease;
-        }
-
-        .profile-box.active,
-        .profile-box:hover {
-            background-color: #6c5ce7;
-            cursor: pointer;
-        }
-
-        .profile-box img,
-        .profile-box i {
-            display: block;
-            margin: 0 auto;
-        }
-
-        .profile-box h4 {
-            margin-top: 10px;
-            color: white;
-        }
-
+        .sidebar h4 { text-align: center; font-size: 18px; margin-top: 10px; }
+        .sidebar a { display: block; color: white; padding: 10px; text-decoration: none; margin: 5px 0; border-radius: 5px; }
+        .sidebar a.active, .sidebar a:hover { background: #6c5ce7; }
+        .profile-box { text-align: center; padding: 10px; border-radius: 10px; }
+        .profile-box.active, .profile-box:hover { background-color: #6c5ce7; cursor: pointer; }
+        .profile-box img, .profile-box i { display: block; margin: 0 auto; }
+        .profile-box h4 { margin-top: 10px; color: white; }
         .logout {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: #e74c3c;
-            text-align: center;
-            padding: 10px;
-            border-radius: 5px;
+            position: absolute; bottom: 20px; left: 20px; right: 20px;
+            background: #e74c3c; text-align: center; padding: 10px; border-radius: 5px;
         }
-
-        .logout a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
+        .logout a, .logout button { color: white; text-decoration: none; font-weight: bold; }
         .toggle-btn {
-            display: none;
-            position: absolute;
-            left: 15px;
-            top: 15px;
-            background: #6c5ce7;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 1000;
+            display: none; position: absolute; left: 15px; top: 15px;
+            background: #6c5ce7; color: white; border: none;
+            padding: 8px 12px; border-radius: 5px; cursor: pointer; z-index: 1000;
         }
-
-        .content {
-            margin-left: 270px;
-            padding: 20px;
-            transition: margin-left 0.3s ease-in-out;
-        }
-
+        .content { margin-left: 270px; padding: 20px; transition: margin-left 0.3s; }
         .table-container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            overflow-x: auto;
+            background: white; padding: 20px; border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); overflow-x: auto;
         }
-
-        .table th, .table td {
-            text-align: center;
-            padding: 10px;
-        }
-
-        .btn-edit, .btn-delete {
-            padding: 5px 10px;
-            border-radius: 5px;
-            text-decoration: none;
-            border: none;
-            color: white;
-        }
-
-        .btn-edit {
-            background: #3498db;
-        }
-
-        .btn-edit:hover {
-            background: #2980b9;
-        }
-
-        .btn-delete {
-            background: #e74c3c;
-        }
-
-        .btn-delete:hover {
-            background: #c0392b;
-        }
-
+        .table th, .table td { text-align: center; padding: 10px; }
+        .btn-edit, .btn-delete { padding: 5px 10px; border-radius: 5px; text-decoration: none; border: none; color: white; }
+        .btn-edit { background: #3498db; }
+        .btn-edit:hover { background: #2980b9; }
+        .btn-delete { background: #e74c3c; }
+        .btn-delete:hover { background: #c0392b; }
         .btn-add {
-            background: #2ecc71;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            text-decoration: none;
-            border: none;
+            background: #2ecc71; color: white; padding: 10px 15px;
+            border-radius: 5px; text-decoration: none; border: none;
         }
-
-        .btn-add:hover {
-            background: #27ae60;
-        }
-
+        .btn-add:hover { background: #27ae60; }
         .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+            display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;
         }
-
-        .search-box input {
-            flex: 1;
-            padding: 8px;
-        }
-
+        .search-box input { flex: 1; padding: 8px; }
         .search-box button {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
+            background: #3498db; color: white; border: none;
+            padding: 8px 15px; border-radius: 5px;
         }
+        .search-box button:hover { background: #2980b9; }
+        .dashboard-container { display: flex; gap: 20px; }
+        .card { flex: 1; padding: 20px; border-radius: 10px; color: white; }
 
-        .search-box button:hover {
-            background: #2980b9;
-        }
-
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .dashboard-container {
-            display: flex;
-            gap: 20px;
-        }
-
-        .card {
-            flex: 1;
-            padding: 20px;
-            border-radius: 10px;
-            color: white;
-        }
-
-        /* Responsif untuk tampilan mobile */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                position: fixed;
-                width: 250px;
-                height: 100vh;
-                z-index: 999;
-            }
-
-            .content {
-                margin-left: 0;
-            }
-
-            .toggle-btn {
-                display: block;
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .sidebar a {
-                text-align: center;
-            }
+            .sidebar { transform: translateX(-100%); position: fixed; width: 250px; z-index: 999; }
+            .content { margin-left: 0; }
+            .toggle-btn { display: block; }
+            .sidebar.show { transform: translateX(0); }
+            .sidebar a { text-align: center; }
         }
     </style>
 </head>
 <body>
-
-<!-- Tombol Toggle Sidebar (Mobile) -->
 <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
 
 <div class="wrapper">
     <div class="sidebar">
         <div class="text-center mb-4 position-relative">
+        @if (Auth::check())
             <a href="{{ route('profile.show') }}" class="profile-box {{ request()->is('profile*') ? 'active' : '' }}">
                 @if (Auth::user()->profile_photo)
                     <img src="{{ asset('storage/profile_photos/' . Auth::user()->profile_photo) }}" alt="Foto Profil" class="rounded-circle" width="80" height="80" style="object-fit: cover; border: 2px solid #fff;">
@@ -243,131 +82,27 @@
                 @endif
                 <h4>Hello, {{ Auth::user()->name }}!</h4>
             </a>
+        @endif
         </div>
 
-        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">
-            <i class="fa fa-home"></i> Dashboard
-        </a>
-        <a href="{{ route('karyawan.index') }}" class="{{ request()->is('karyawan*') ? 'active' : '' }}">
-            <i class="fa fa-users"></i> Karyawan
-        </a>
-        <a href="{{ route('absensi.index') }}" class="{{ request()->is('absensi*') ? 'active' : '' }}">
-            <i class="fa fa-calendar-check"></i> Absensi
-        </a>
-        <a href="{{ route('gaji.index') }}" class="{{ request()->is('gaji*') ? 'active' : '' }}">
-            <i class="fa fa-money-bill"></i> Gaji
-        </a>
-        <a href="#" class="{{ request()->is('laporan*') ? 'active' : '' }}">
-            <i class="fa fa-file-alt"></i> Laporan
-        </a>
+        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}"><i class="fa fa-home"></i> Dashboard</a>
+        <a href="{{ route('karyawan.index') }}" class="{{ request()->is('karyawan*') ? 'active' : '' }}"><i class="fa fa-users"></i> Karyawan</a>
+        <a href="{{ route('absensi.index') }}" class="{{ request()->is('absensi*') ? 'active' : '' }}"><i class="fa fa-calendar-check"></i> Absensi</a>
+        <a href="{{ route('gaji.index') }}" class="{{ request()->is('gaji*') ? 'active' : '' }}"><i class="fa fa-money-bill"></i> Gaji</a>
+        <a href="#" class="{{ request()->is('laporan*') ? 'active' : '' }}"><i class="fa fa-file-alt"></i> Laporan</a>
 
         <div class="logout">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" style="background: none; border: none; color: inherit;">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
+                <button type="submit" style="background: none; border: none;"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </form>
         </div>
     </div>
-
     <div class="content">
-        <div class="table-container">
-            <h3 class="mb-4">Daftar Absensi Karyawan</h3>
-
-            <!-- Navigasi Bulan & Tahun -->
-            <div class="d-flex justify-content-between mb-3">
-                <div>
-                    <label for="monthSelect">Pilih Bulan: </label>
-                    <select id="monthSelect" class="form-select" style="width: auto;">
-                        @for ($i = 1; $i <= 12; $i++)
-                            <option value="{{ $i }}" {{ $i == date('n') ? 'selected' : '' }}>{{ date('F', strtotime("2025-$i-01")) }}</option>
-                        @endfor
-                    </select>
-                </div>
-
-                <div>
-                    <label for="yearSelect">Pilih Tahun: </label>
-                    <select id="yearSelect" class="form-select" style="width: auto;">
-                        <!-- Pilihan tahun akan ditambahkan oleh JavaScript -->
-                    </select>
-                </div>
-            </div>
-
-            <!-- Form Upload Excel -->
-            <form action="{{ route('absensi.upload') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="mb-3">
-                    <label for="excelFile" class="form-label">Upload Excel Absensi</label>
-                    <input class="form-control" type="file" id="excelFile" name="excelFile">
-                </div>
-                <button type="submit" class="btn btn-success">Upload</button>
-            </form>
-
-            <!-- Tabel Absensi -->
-            <table class="table table-bordered mt-4">
-                <thead>
-                    <tr>
-                        <th rowspan="2" class="text-center">ID</th>
-                        <th rowspan="2" class="text-center">Nama Karyawan</th>
-                        <th colspan="31" class="text-center">Hari/Tanggal</th>
-                        <tr class="text-center" id="dayHeaders">
-                            <!-- Header tanggal akan diubah dengan JavaScript -->
-                        </th>
-                    </tr>
-                    <tr>
-                        <!-- Baris ini akan diisi dengan hari/tanggal secara dinamis -->
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Data absensi akan diisi di sini -->
-                </tbody>
-            </table>
-        </div>
+        @yield('content')
     </div>
 </div>
 
-<script>
-    function toggleSidebar() {
-        document.querySelector('.sidebar').classList.toggle('show');
-    }
-
-    // Fungsi untuk menghitung jumlah hari dalam bulan tertentu
-    function getDaysInMonth(month, year) {
-        return new Date(year, month, 0).getDate();
-    }
-
-    // Fungsi untuk memperbarui kolom tanggal di tabel
-    function updateTable() {
-        var month = document.getElementById('monthSelect').value;
-        var year = document.getElementById('yearSelect').value;
-        var daysInMonth = getDaysInMonth(month, year);
-
-        // Update header tanggal
-        var dayHeaders = document.getElementById('dayHeaders');
-        dayHeaders.innerHTML = ''; // Kosongkan sebelumnya
-        for (var i = 1; i <= daysInMonth; i++) {
-            var th = document.createElement('th');
-            th.innerText = i;
-            dayHeaders.appendChild(th);
-        }
-    }
-
-    // Menambahkan event listener untuk update tabel ketika bulan atau tahun dipilih
-    document.getElementById('monthSelect').addEventListener('change', updateTable);
-    document.getElementById('yearSelect').addEventListener('change', updateTable);
-
-    // Membuat pilihan tahun dinamis
-    for (var i = 2025; i <= 2040; i++) {
-        var option = document.createElement('option');
-        option.value = i;
-        option.innerText = i;
-        document.getElementById('yearSelect').appendChild(option);
-    }
-
-    // Memperbarui tabel saat pertama kali dimuat
-    updateTable();
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

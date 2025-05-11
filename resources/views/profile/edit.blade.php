@@ -15,12 +15,19 @@
         <div class="mb-3 text-center">
             @if ($user->profile_photo)
             <img src="{{ asset('storage/profile_photos/' . $user->profile_photo) }}" alt="Foto Profil" 
-            class="rounded-circle" width="80" height="80" style="object-fit: cover; border: 2px solid #fff;">
+            class="rounded-circle" width="120" height="120" style="object-fit: cover; border: 2px solid #fff;">
             @else
                 <!-- Ikon Default jika Tidak Ada Foto -->
-                <img src="{{ asset('images/default.png') }}" alt="Default" width="150" height="150">
+                <i class="bi bi-person-circle" style="font-size: 120px; color: #fff;"></i>
             @endif
         </div>
+
+        <!-- Tombol Hapus Foto Profil -->
+        @if ($user->profile_photo)
+        <div class="mb-3 text-center">
+            <button type="submit" name="remove_profile_photo" id="remove_profile_photo" value="1" class="btn btn-danger">Hapus Foto Profil</button>
+        </div>
+        @endif
 
         <!-- Input Foto Profil -->
         <div class="mb-3">

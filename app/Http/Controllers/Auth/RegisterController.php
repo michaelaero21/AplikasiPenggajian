@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
@@ -32,6 +33,7 @@ class RegisterController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:admin,pegawai',
         ]);
 
         if ($validator->fails()) {
@@ -44,7 +46,8 @@ class RegisterController extends Controller
         User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password), // Mengenkripsi password
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
 
         // Redirect atau login pengguna setelah registrasi

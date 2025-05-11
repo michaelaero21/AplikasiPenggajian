@@ -25,7 +25,8 @@
 
                     <div class="col-md-6 mb-3">
                         <label for="nomor_telepon" class="form-label">Nomor Telepon</label>
-                        <input type="tel" id="nomor_telepon" name="nomor_telepon" class="form-control" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                        <input type="tel" id="nomor_telepon" name="nomor_telepon" class="form-control" required>
+                        <small id="warning" class="form-text text-danger" style="display: none;">Nomor telepon harus antara 10 hingga 13 digit angka!</small>
                     </div>
                 </div>
 
@@ -67,4 +68,47 @@
         </div>
     </div>
 </div>
+
+<script>
+    function formatPhoneNumber(input) {
+        let raw = input.value.replace(/[^0-9]/g, ''); // Hanya angka
+
+        if (raw.length > 13) {
+            raw = raw.slice(0, 13); // Maksimal 13 digit
+        }
+
+        let formatted = '';
+        if (raw.length <= 4) {
+            formatted = raw;
+        } else if (raw.length <= 8) {
+            formatted = raw.slice(0, 4) + '-' + raw.slice(4);
+        } else {
+            formatted = raw.slice(0, 4) + '-' + raw.slice(4, 8) + '-' + raw.slice(8);
+        }
+
+        input.value = formatted;
+
+        const warning = document.getElementById('warning');
+        if (raw.length < 10 || raw.length > 13) {
+            warning.style.display = 'block';
+        } else {
+            warning.style.display = 'none';
+        }
+    }
+
+    document.getElementById("nomor_telepon").addEventListener("input", function (e) {
+        formatPhoneNumber(e.target);
+    });
+
+    document.getElementById("nomor_telepon").addEventListener("keydown", function (e) {
+        const input = e.target;
+        const key = e.key;
+        const cursorPos = input.selectionStart;
+
+        if (key === "Backspace" && cursorPos > 0 && input.value[cursorPos - 1] === '-') {
+            input.setSelectionRange(cursorPos - 1, cursorPos - 1);
+            e.preventDefault();
+        }
+    });
+</script>
 @endsection

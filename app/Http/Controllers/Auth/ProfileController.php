@@ -27,6 +27,7 @@ class ProfileController extends Controller
             'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
             'current_password' => 'nullable|required_with:new_password|current_password',
             'new_password' => 'nullable|min:8|confirmed',
+            'remove_profile_photo' => 'nullable|boolean', 
         ]);
 
         $changedData = [];
@@ -65,6 +66,20 @@ class ProfileController extends Controller
             $user->profile_photo = $filename;
             $changedData[] = 'Foto Profil';
         }
+
+        // Hapus foto profil jika di-request
+        if ($request->remove_profile_photo) {
+            if ($user->profile_photo) {
+                // Menghapus foto dari storage
+                Storage::delete('public/profile_photos/' . $user->profile_photo);
+
+                // Mengubah nilai profile_photo menjadi null
+                $user->profile_photo = null;
+
+                $changedData[] = 'Foto Profil dihapus';
+            }
+        }
+
 
         // Simpan jika ada perubahan
         if (!empty($changedData)) {

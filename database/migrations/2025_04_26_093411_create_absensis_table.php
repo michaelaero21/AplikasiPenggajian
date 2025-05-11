@@ -12,9 +12,11 @@ class CreateAbsensisTable extends Migration
         Schema::create('absensis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('karyawan_id')->constrained('karyawans')->onDelete('cascade');
+            $table->string('nama_karyawan')->nullable();
             $table->date('tanggal');
             $table->time('jam_masuk')->nullable();  // Untuk jam masuk
-            $table->time('jam_pulang')->nullable(); // Untuk jam pulang
+            $table->time('jam_pulang')->nullable(); 
+            $table->string('status', 1)->default('I');// Untuk jam pulang
             $table->timestamps();
         });
         

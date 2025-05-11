@@ -55,8 +55,11 @@ Route::middleware('auth')->group(function () {
 // Menampilkan halaman daftar absensi
 // Menampilkan halaman daftar absensi
 // Ubah ini:
-Route::get('absensi', [AbsensiController::class, 'showAbsensi'])->name('absensi.index');
+Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
+Route::get('/absensi/show', [AbsensiController::class, 'showAbsensi'])->name('absensi.show');
+Route::post('/absensi/upload', [AbsensiController::class, 'upload'])->name('absensi.upload');
+Route::get('/absensi/import/{karyawan_id}', [AbsensiController::class, 'importAbsensi'])->name('absensi.import');
 
-Route::post('absensi/upload', [AbsensiController::class, 'upload'])->name('absensi.upload');
-Route::post('absensi/import', [AbsensiController::class, 'import'])->name('absensi.import');// Mengubah URL untuk showAbsensi
-Route::get('absensi/dashboard', [AbsensiController::class, 'dashboard'])->name('absensi.dashboard');
+Route::post('/absensi/preview', [AbsensiController::class, 'preview'])->name('absensi.preview');
+Route::post('/absensi/import', [AbsensiController::class, 'import'])->name('absensi.import');
+Route::delete('/absensi/{karyawan_id}/hapus-semua', [AbsensiController::class, 'deleteAll'])->name('absensi.deleteAll');

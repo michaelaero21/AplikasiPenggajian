@@ -48,7 +48,7 @@
                     <td>{{ $karyawan->jabatan }}</td>
                     <td>{{ $karyawan->alamat_karyawan }}</td>
                     <td>{{ $karyawan->jenis_kelamin }}</td>
-                    <td>{{ $karyawan->nomor_telepon }}</td>
+                    <td id="telepon-{{ $karyawan->id }}" data-phone="{{ $karyawan->nomor_telepon }}">{{ $karyawan->nomor_telepon }}</td>
                     <td>
                         <a href="{{ route('karyawan.edit', $karyawan->id) }}" class="btn btn-primary btn-sm">Edit</a>
                         <form action="{{ route('karyawan.destroy', $karyawan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
@@ -87,6 +87,21 @@
             clearTimeout(timer);
             timer = setTimeout(() => func.apply(this, arguments), delay);
         };
+    }
+
+    // Format nomor telepon dengan pemisah "-" setelah 4 digit pertama dan setiap 4 digit berikutnya
+    document.addEventListener('DOMContentLoaded', function () {
+        let teleponElements = document.querySelectorAll('[id^="telepon-"]');
+
+        teleponElements.forEach(function(element) {
+            let phone = element.getAttribute('data-phone');
+            element.innerText = formatPhoneNumber(phone);
+        });
+    });
+
+    function formatPhoneNumber(phoneNumber) {
+        // Format nomor telepon menjadi 0812-8876-9867
+        return phoneNumber.replace(/^(\d{4})(\d{4})(\d{4})$/, "$1-$2-$3");
     }
 </script>
 
