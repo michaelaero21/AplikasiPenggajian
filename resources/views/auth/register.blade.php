@@ -21,8 +21,8 @@
         <label for="role" class="form-label">Role</label>
         <select name="role" class="form-select" required>
             <option value="">Pilih Role</option>
-            <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-            <option value="pegawai" {{ old('role') == 'pegawai' ? 'selected' : '' }}>Pegawai</option>
+            <option value="Admin" {{ old('role') == 'Admin' ? 'selected' : '' }}>Admin</option>
+            <option value="Karyawan" {{ old('role') == 'Karyawan' ? 'selected' : '' }}>Karyawan</option>
         </select>
     </div>
 

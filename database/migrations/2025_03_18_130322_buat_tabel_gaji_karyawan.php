@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('gaji_karyawans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('karyawan_id')->constrained('karyawans')->onDelete('cascade'); // Pastikan tabel karyawans ada
-            $table->enum('kategori_gaji', ['Harian', 'Bulanan']);
+            $table->enum('kategori_gaji', ['Mingguan', 'Bulanan']);
             // Komponen gaji untuk karyawan non-marketing (WAJIB DIISI)
             $table->decimal('gaji_pokok', 10, 2); // Wajib
             $table->decimal('uang_makan', 10, 2); // Wajib

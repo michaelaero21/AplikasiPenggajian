@@ -41,7 +41,7 @@
                     <label for="kategori_gaji" class="form-label">Kategori Gaji:</label>
                     <select class="form-select @error('kategori_gaji') is-invalid @enderror" name="kategori_gaji" id="kategori_gaji" required>
                         <option value="" disabled selected>Pilih Kategori</option>
-                        <option value="Harian">Harian</option>
+                        <option value="Mingguan">Mingguan</option>
                         <option value="Bulanan">Bulanan</option>
                     </select>
                     @error('kategori_gaji')

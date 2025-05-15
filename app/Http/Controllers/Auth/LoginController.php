@@ -30,4 +30,11 @@ class LoginController extends Controller
         Auth::logout();
         return redirect()->route('login');
     }
+    protected function redirectTo()
+    {
+        return auth()->user()->role === 'karyawan'
+            ? route('karyawan.dashboard')
+            : '/home';
+    }
+
 }

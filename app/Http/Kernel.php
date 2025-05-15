@@ -64,7 +64,9 @@ class Kernel extends HttpKernel
 
         // Custom middleware
         'csp' => \App\Http\Middleware\ContentSecurityPolicy::class,
-        'admin' => \App\Http\Middleware\AdminMiddleware::class,
-        'pegawai' => \App\Http\Middleware\PegawaiMiddleware::class,
+        'Admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'Karyawan' => \App\Http\Middleware\KaryawanMiddleware::class,
+        'check.admin.access' => \App\Http\Middleware\CheckAdminAccess::class,
+        'check.karyawan.access' => \App\Http\Middleware\CheckKaryawanAccess::class,
     ];
 }

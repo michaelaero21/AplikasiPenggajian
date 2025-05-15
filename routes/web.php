@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\KaryawanController;
@@ -10,11 +11,12 @@ use App\Http\Controllers\Auth\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\KaryawanDashboardController;
+
 Route::get('/', function () {
     // Mengarahkan pengguna yang belum login ke halaman login
     return auth()->check() ? redirect()->route('home') : redirect()->route('login');
 });
-
 
 // Route untuk halaman home setelah login
 Route::middleware('auth')->get('/home', [HomeController::class, 'index'])->name('home');
@@ -40,11 +42,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 });
 
-Route::middleware(['auth', 'pegawai'])->group(function () {
-    Route::get('/pegawai/dashboard', [PegawaiController::class, 'index'])->name('pegawai.dashboard');
+// Middleware untuk Karyawan Dashboard
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard-karyawan', [KaryawanDashboardController::class, 'index'])->name('karyawan.dashboard');
 });
 
-// Profile route dengan middleware auth
 // Profile route dengan middleware auth
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
@@ -52,14 +54,43 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 });
 
-// Menampilkan halaman daftar absensi
-// Menampilkan halaman daftar absensi
-// Ubah ini:
-Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi.index');
-Route::get('/absensi/show', [AbsensiController::class, 'showAbsensi'])->name('absensi.show');
-Route::post('/absensi/upload', [AbsensiController::class, 'upload'])->name('absensi.upload');
-Route::get('/absensi/import/{karyawan_id}', [AbsensiController::class, 'importAbsensi'])->name('absensi.import');
+// Route untuk Absensi
+Route::middleware(['auth'])->prefix('absensi')->group(function () {
+    Route::get('/', [AbsensiController::class, 'index'])->name('absensi.index');
+    Route::get('/show', [AbsensiController::class, 'showAbsensi'])->name('absensi.show');
+    Route::post('/upload', [AbsensiController::class, 'upload'])->name('absensi.upload');
 
-Route::post('/absensi/preview', [AbsensiController::class, 'preview'])->name('absensi.preview');
-Route::post('/absensi/import', [AbsensiController::class, 'import'])->name('absensi.import');
-Route::delete('/absensi/{karyawan_id}/hapus-semua', [AbsensiController::class, 'deleteAll'])->name('absensi.deleteAll');
+    // 🔄 Ubah nama agar tidak konflik (GET untuk filter preview)
+    Route::get('/preview', [AbsensiController::class, 'preview'])->name('absensi.preview');
+    
+    // POST preview (setelah upload file)
+    Route::post('/preview', [AbsensiController::class, 'preview'])->name('absensi.preview');
+
+    // POST untuk menyimpan ke DB
+    Route::post('/import', [AbsensiController::class, 'import'])->name('absensi.import');
+
+    // Jika kamu perlu import berdasarkan karyawan_id via GET (opsional)
+    Route::get('/import/{karyawan_id}', [AbsensiController::class, 'importAbsensi'])->name('absensi.import.karyawan');
+
+    Route::delete('/{karyawan_id}/hapus-semua', [AbsensiController::class, 'deleteAll'])->name('absensi.deleteAll');
+    Route::get('/karyawan', [AbsensiController::class, 'showForKaryawan'])->name('absensi.karyawan');
+});
+
+// Middleware untuk Admin dan Karyawan
+Route::middleware(['auth', 'check.admin.access'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+});
+Route::middleware(['auth', 'check.karyawan.access'])->group(function () {
+    Route::get('/absensi/karyawan', [AbsensiController::class, 'showForKaryawan'])->name('absensi.karyawan');
+});
+
+// Custom Middleware Check Admin Access
+Route::middleware(['auth', 'check.admin.access'])->group(function () {
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+});
+
+// Custom Middleware Check Karyawan Access
+Route::middleware(['auth', 'check.karyawan.access'])->group(function () {
+    Route::get('/absensi/karyawan', [AbsensiController::class, 'showForKaryawan'])->name('absensi.karyawan');
+});
+

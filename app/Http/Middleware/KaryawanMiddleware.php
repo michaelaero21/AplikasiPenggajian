@@ -9,7 +9,7 @@ class PegawaiMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->role === 'pegawai') {
+        if (Auth::check() && Auth::user()->role === 'Karyawan') {
             return $next($request);
         }
 

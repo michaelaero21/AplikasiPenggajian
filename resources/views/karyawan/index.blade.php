@@ -23,7 +23,10 @@
 <!-- Pencarian dan Tambah Karyawan -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <input type="text" id="search-input" class="form-control w-50 me-2" placeholder="Cari Karyawan...">
-    <a href="{{ route('karyawan.create') }}" class="btn btn-success">Tambah Karyawan</a>
+
+    @if(auth()->user()->role !== 'Karyawan')
+        <a href="{{ route('karyawan.create') }}" class="btn btn-success">Tambah Karyawan</a>
+    @endif
 </div>
 
 <!-- Tabel Karyawan -->
@@ -37,7 +40,9 @@
                 <th>Alamat</th>
                 <th>Jenis Kelamin</th>
                 <th>No. Telepon</th>
-                <th>Aksi</th>
+                @if(auth()->user()->role !== 'Karyawan')
+                    <th>Aksi</th>
+                @endif
             </tr>
         </thead>
         <tbody>
@@ -49,6 +54,8 @@
                     <td>{{ $karyawan->alamat_karyawan }}</td>
                     <td>{{ $karyawan->jenis_kelamin }}</td>
                     <td id="telepon-{{ $karyawan->id }}" data-phone="{{ $karyawan->nomor_telepon }}">{{ $karyawan->nomor_telepon }}</td>
+                    
+                    @if(auth()->user()->role !== 'Karyawan')
                     <td>
                         <a href="{{ route('karyawan.edit', $karyawan->id) }}" class="btn btn-primary btn-sm">Edit</a>
                         <form action="{{ route('karyawan.destroy', $karyawan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
@@ -57,10 +64,11 @@
                             <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
                         </form>
                     </td>
+                    @endif
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center">Belum ada data karyawan.</td>
+                    <td colspan="{{ auth()->user()->role !== 'Karyawan' ? '7' : '6' }}" class="text-center">Belum ada data karyawan.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -89,7 +97,7 @@
         };
     }
 
-    // Format nomor telepon dengan pemisah "-" setelah 4 digit pertama dan setiap 4 digit berikutnya
+    // Format nomor telepon
     document.addEventListener('DOMContentLoaded', function () {
         let teleponElements = document.querySelectorAll('[id^="telepon-"]');
 
@@ -100,7 +108,6 @@
     });
 
     function formatPhoneNumber(phoneNumber) {
-        // Format nomor telepon menjadi 0812-8876-9867
         return phoneNumber.replace(/^(\d{4})(\d{4})(\d{4})$/, "$1-$2-$3");
     }
 </script>

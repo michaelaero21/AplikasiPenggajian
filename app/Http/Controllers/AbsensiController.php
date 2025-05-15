@@ -13,31 +13,71 @@ use Illuminate\Support\Facades\Log;
 
 class AbsensiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $year  = now()->year;
-        $month = now()->month;
+        $year = $request->input('year', now()->year);
+        $month = $request->input('month', now()->month);
+        $kategoriGaji = $request->input('kategori_gaji'); // bisa 'mingguan', 'bulanan', atau null
+        $karyawanId = $request->input('karyawan_id');
 
-        $karyawans = $this->getKaryawanWithAbsensi($year, $month);
+        $karyawansData = $this->getKaryawanWithAbsensi($year, $month);
         $days = $this->generateDays($year, $month);
 
-        return view('absensi.index', compact('karyawans', 'year', 'month', 'days'));
-    }
+        // Karyawan berdasarkan kategori
+        $karyawansMingguan = $karyawansData['Mingguan'];
+        $karyawansBulanan = $karyawansData['Bulanan'];
+        $karyawansAll = $karyawansMingguan->merge($karyawansBulanan)->sortBy('nama')->values();
 
-    public function showAbsensi(Request $request)
-    {
-        $year  = filter_var($request->get('year', now()->year), FILTER_VALIDATE_INT);
-        $month = filter_var($request->get('month', now()->month), FILTER_VALIDATE_INT);
-
-        if ($month < 1 || $month > 12) {
-            $month = now()->month;
+        // Filter jika kategori_gaji dipilih
+        if ($kategoriGaji === 'mingguan') {
+            $karyawansBulanan = collect(); // kosongkan
+        } elseif ($kategoriGaji === 'bulanan') {
+            $karyawansMingguan = collect(); // kosongkan
         }
 
-        $karyawans = $this->getKaryawanWithAbsensi($year, $month);
-        $days = $this->generateDays($year, $month);
+        // Filter karyawan spesifik jika ada
+        if ($karyawanId) {
+            $karyawansMingguan = $karyawansMingguan->where('id', $karyawanId);
+            $karyawansBulanan = $karyawansBulanan->where('id', $karyawanId);
+        }
 
-        return view('absensi.index', compact('karyawans', 'year', 'month', 'days'));
+        return view('absensi.index', [
+            'karyawansMingguan' => $karyawansMingguan,
+            'karyawansBulanan' => $karyawansBulanan,
+            'karyawansAll' => $karyawansAll,
+            'year' => $year,
+            'month' => $month,
+            'days' => $days,
+        ]);
     }
+
+     public function showAbsensi(Request $request)
+{
+    $year  = filter_var($request->get('year', now()->year), FILTER_VALIDATE_INT);
+    $month = filter_var($request->get('month', now()->month), FILTER_VALIDATE_INT);
+    $tipe  = strtolower($request->get('tipe', 'semua')); // lowercase untuk konsistensi
+
+    if ($month < 1 || $month > 12) {
+        $month = now()->month;
+    }
+
+    if ($tipe === 'semua') {
+    $all = Karyawan::all();
+    $karyawans = [
+        'semua' => $all,
+        'mingguan' => $all->where('kategori_gaji', 'Mingguan'),
+        'bulanan' => $all->where('kategori_gaji', 'Bulanan'),
+        'belum_diketahui' => $all->whereNull('kategori_gaji'),
+    ];
+    } else {
+        $karyawans = $this->getKaryawanWithAbsensi($year, $month);
+    }
+
+    $days = $this->generateDays($year, $month);
+
+    return view('absensi.index', compact('karyawans', 'year', 'month', 'days', 'tipe'));
+}
+
 
     public function upload(Request $request)
 {
@@ -75,6 +115,7 @@ class AbsensiController extends Controller
 
     public function import(Request $request)
     {
+        
         $request->validate([
             'filePath' => 'required|string',
         ]);
@@ -177,11 +218,27 @@ class AbsensiController extends Controller
 
             DB::commit();
 
-            $karyawans = $this->getKaryawanWithAbsensi($year, $month);
-            $days = $this->generateDays($year, $month);
+           $kategoriGaji = strtolower($karyawan->kategori_gaji ?? '');
 
-            return view('absensi.index', compact('karyawans', 'year', 'month', 'days'))
-                   ->with('success', 'Data absensi berhasil diimport.');
+            if ($kategoriGaji === 'bulanan') {
+                return redirect()->route('absensi.show', [
+                    'tipe' => 'bulanan',
+                    'month' => $month,
+                    'year' => $year,
+                ])->with('success', 'Import absensi '. $karyawan->nama .' bulanan berhasil.');
+            } elseif ($kategoriGaji === 'mingguan') {
+                return redirect()->route('absensi.show', [
+                    'tipe' => 'mingguan',
+                    'month' => $month,
+                    'year' => $year,
+                ])->with('success', 'Import absensi '. $karyawan->nama .' mingguan berhasil.');
+            } else {
+                return redirect()->route('absensi.show', [
+                    'tipe' => 'semua',
+                    'month' => $month,
+                    'year' => $year,
+                ])->with('success', 'Import absensi '. $karyawan->nama .' berhasil.');
+            }  
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -204,107 +261,145 @@ class AbsensiController extends Controller
 
     private function getKaryawanWithAbsensi($year, $month)
     {
-        return Karyawan::with(['absensi' => function ($q) use ($year, $month) {
+        // Mengambil karyawan berdasarkan kategori gaji dan dengan absensi di bulan dan tahun yang ditentukan
+        $karyawanMingguan = Karyawan::whereHas('gajiKaryawan', function($query) {
+            $query->where('kategori_gaji', 'Mingguan');
+        })->with(['absensi' => function ($q) use ($year, $month) {
             $q->whereYear('tanggal', $year)
-              ->whereMonth('tanggal', $month);
+            ->whereMonth('tanggal', $month);
         }])->get();
+
+        $karyawanBulanan = Karyawan::whereHas('gajiKaryawan', function($query) {
+            $query->where('kategori_gaji', 'Bulanan');
+        })->with(['absensi' => function ($q) use ($year, $month) {
+            $q->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $month);
+        }])->get();
+
+        $karyawanBelumDiketahui = Karyawan::whereDoesntHave('gajiKaryawan')
+        ->with(['absensi' => function ($q) use ($year, $month) {
+            $q->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $month);
+        }])
+    ->get();
+        $karyawanSemua = $karyawanMingguan->merge($karyawanBulanan)->merge($karyawanBelumDiketahui);
+         $karyawanSemua = $karyawanSemua->sortBy('id')->values();
+        // Kembalikan data terkelompok berdasarkan kategori gaji
+        return [
+            'Mingguan' => $karyawanMingguan,
+            'Bulanan' => $karyawanBulanan,
+            'belum_diketahui' => $karyawanBelumDiketahui,
+            'Semua' => $karyawanSemua
+        ];
     }
+
+    
+
     public function preview(Request $request)
-    {
+{
+    
+    $kategori_gaji = $request->get('kategori', 'all');
+    $filePath = $request->get('filePath');
+
+    // Ambil karyawan berdasarkan kategori
+    $karyawanMingguan = Karyawan::whereHas('gajiKaryawan', fn($q) => $q->where('kategori_gaji', 'Mingguan'))->get();
+    $karyawanBulanan = Karyawan::whereHas('gajiKaryawan', fn($q) => $q->where('kategori_gaji', 'Bulanan'))->get();
+    $karyawanBelumDiketahui = Karyawan::whereHas('gajiKaryawan', fn($q) => $q->whereNull('kategori_gaji'))->get();
+
+    // Jika tidak ada file sama sekali
+    if (!$request->hasFile('file') && !$filePath) {
+        return view('absensi.preview', [
+            'previewData' => [],
+            'karyawans' => Karyawan::all(),
+            'karyawanMingguan' => $karyawanMingguan,
+            'karyawanBulanan' => $karyawanBulanan,
+            'karyawanBelumDiketahui' => $karyawanBelumDiketahui,
+            'kategori_gaji' => $kategori_gaji,
+            'filePath' => null,
+            'month' => now()->month,
+            'year' => now()->year,
+        ]);
+    }
+
+    // Tentukan file yang digunakan
+    if ($filePath && !$request->hasFile('file')) {
+        $path = $filePath;
+        $fullPath = Storage::disk('public')->path($path);
+    } else {
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls,csv|max:2048',
         ]);
-    
+
         $file = $request->file('file');
         $filename = time() . '_' . $file->getClientOriginalName();
         $path = $file->storeAs('uploads/absensi', $filename, 'public');
         $fullPath = Storage::disk('public')->path($path);
-    
-        try {
-            $spreadsheet = IOFactory::load($fullPath);
-            $sheet = $spreadsheet->getActiveSheet();
-    
-            // Ambil data dari baris A1 sampai kolom maksimum baris ke-13
-            $highestColumn = $sheet->getHighestColumn();
-            $rows = $sheet->rangeToArray("A1:{$highestColumn}13", null, true, false);
-    
-            $year = now()->year;
-            $month = now()->month;
-    
-            if (!empty($rows[4][0]) && stripos($rows[4][0], 'Month:') !== false) {
-                if (preg_match('/Month:\s*(\d{1,2})/', $rows[4][0], $m)) {
-                    $month = (int) $m[1];
-                }
-            }
-    
-            $convertTime = function ($value) {
-                if (is_numeric($value)) {
-                    return Date::excelToDateTimeObject($value)->format('H:i:s');
-                }
-                return !empty($value) ? (string) $value : null;
-            };
-    
-            // Blok 1 (tanggal 1–16)
-            $dates1 = $rows[7] ?? [];
-            $in1 = $rows[8] ?? [];
-            $out1 = $rows[9] ?? [];
-    
-            // Blok 2 (tanggal 17–31)
-            $dates2 = $rows[10] ?? [];
-            $in2 = $rows[11] ?? [];
-            $out2 = $rows[12] ?? [];
-    
-            $previewData = [];
-    
-            // Ambil data blok 1
-            for ($i = 0; $i < count($dates1); $i++) {
-                $day = (int)trim($dates1[$i] ?? '');
-                if ($day >= 1 && $day <= 31) {
-                    $tanggal = Carbon::create($year, $month, $day)->toDateString();
-                    $jamMasuk = $convertTime($in1[$i] ?? null);
-                    $jamPulang = $convertTime($out1[$i] ?? null);
-    
-                    $previewData[] = [
-                        'tanggal' => $tanggal,
-                        'jam_masuk' => $jamMasuk,
-                        'jam_pulang' => $jamPulang,
-                    ];
-                }
-            }
-    
-            // Ambil data blok 2
-            for ($i = 0; $i < count($dates2); $i++) {
-                $day = (int)trim($dates2[$i] ?? '');
-                if ($day >= 1 && $day <= 31) {
-                    $tanggal = Carbon::create($year, $month, $day)->toDateString();
-                    $jamMasuk = $convertTime($in2[$i] ?? null);
-                    $jamPulang = $convertTime($out2[$i] ?? null);
-    
-                    $previewData[] = [
-                        'tanggal' => $tanggal,
-                        'jam_masuk' => $jamMasuk,
-                        'jam_pulang' => $jamPulang,
-                    ];
-                }
-            }
-    
-            // Urutkan berdasarkan tanggal (jika perlu)
-            usort($previewData, fn($a, $b) => strtotime($a['tanggal']) <=> strtotime($b['tanggal']));
-    
-            $karyawans = Karyawan::all();
-    
-            return view('absensi.preview', [
-                'previewData' => $previewData,
-                'karyawans' => $karyawans,
-                'filePath' => $path,
-                'month' => $month,
-                'year' => $year,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Preview error: ' . $e->getMessage());
-            return back()->with('error', 'Gagal melakukan pratinjau file: ' . $e->getMessage());
-        }
     }
+
+    try {
+        $spreadsheet = IOFactory::load($fullPath);
+        $sheet = $spreadsheet->getActiveSheet();
+        $highestColumn = $sheet->getHighestColumn();
+        $rows = $sheet->rangeToArray("A1:{$highestColumn}13", null, true, false);
+
+        $year = now()->year;
+        $month = now()->month;
+        if (!empty($rows[4][0]) && stripos($rows[4][0], 'Month:') !== false) {
+            if (preg_match('/Month:\s*(\d{1,2})/', $rows[4][0], $m)) {
+                $month = (int) $m[1];
+            }
+        }
+
+        $convertTime = function ($value) {
+            if (is_numeric($value)) {
+                return Date::excelToDateTimeObject($value)->format('H:i:s');
+            }
+            return !empty($value) ? (string) $value : null;
+        };
+
+        $dates1 = $rows[7] ?? [];
+        $in1 = $rows[8] ?? [];
+        $out1 = $rows[9] ?? [];
+        $dates2 = $rows[10] ?? [];
+        $in2 = $rows[11] ?? [];
+        $out2 = $rows[12] ?? [];
+
+        $previewData = [];
+
+        foreach ([[$dates1, $in1, $out1], [$dates2, $in2, $out2]] as [$dates, $in, $out]) {
+            for ($i = 0; $i < count($dates); $i++) {
+                $day = (int)trim($dates[$i] ?? '');
+                if ($day >= 1 && $day <= 31) {
+                    $tanggal = Carbon::create($year, $month, $day)->toDateString();
+                    $previewData[] = [
+                        'tanggal' => $tanggal,
+                        'jam_masuk' => $convertTime($in[$i] ?? null),
+                        'jam_pulang' => $convertTime($out[$i] ?? null),
+                    ];
+                }
+            }
+        }
+
+        usort($previewData, fn($a, $b) => strtotime($a['tanggal']) <=> strtotime($b['tanggal']));
+
+        return view('absensi.preview', [
+            'previewData' => $previewData,
+            'karyawans' => Karyawan::all(),
+            'karyawanMingguan' => $karyawanMingguan,
+            'karyawanBulanan' => $karyawanBulanan,
+            'karyawanBelumDiketahui' => $karyawanBelumDiketahui,
+            'kategori_gaji' => $kategori_gaji,
+            'filePath' => $path,
+            'month' => $month,
+            'year' => $year,
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Preview error: ' . $e->getMessage());
+        return back()->with('error', 'Gagal melakukan pratinjau file: ' . $e->getMessage());
+    }
+}
+
+
     
 
 // Contoh dalam AbsensiController
@@ -343,6 +438,25 @@ public function deleteAll(Request $request, $karyawan_id)
         'month' => $request->month,
         'year' => $request->year
     ])->with('success', 'Data absensi ' . $karyawan->nama . ' berhasil dihapus.');
+}
+public function showForKaryawan()
+{
+    // Ambil data karyawan yang sedang login
+    $karyawan = auth()->user()->karyawan; // Mengambil data karyawan yang sedang login (asumsi relasi sudah ada)
+
+    // Ambil data absensi untuk karyawan tersebut
+    $year = now()->year;
+    $month = now()->month;
+
+    $absensi = Absensi::where('karyawan_id', $karyawan->id)
+                    ->whereYear('tanggal', $year)
+                    ->whereMonth('tanggal', $month)
+                    ->get();
+
+    // Ambil semua hari dalam bulan ini
+    $days = $this->generateDays($year, $month);
+
+    return view('absensi.karyawan', compact('karyawan', 'absensi', 'year', 'month', 'days'));
 }
 
 

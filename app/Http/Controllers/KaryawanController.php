@@ -7,6 +7,25 @@ use App\Models\Karyawan;
 
 class KaryawanController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+
+        // Batasi akses method create, store, edit, update, destroy hanya untuk non-karyawan
+        $this->middleware(function ($request, $next) {
+            $user = auth()->user();
+
+            // Jika user adalah karyawan dan mencoba akses selain index/show, tolak
+            if (
+                in_array($request->route()->getActionMethod(), ['create', 'store', 'edit', 'update', 'destroy']) &&
+                $user->role === 'Karyawan'
+            ) {
+                return redirect()->route('home')->with('error', 'Akses ditolak: Karyawan tidak boleh mengubah data.');
+            }
+
+            return $next($request);
+        });
+    }
     public function index()
     {
         $karyawans = Karyawan::all();
@@ -85,4 +104,19 @@ class KaryawanController extends Controller
         $karyawan->delete();
         return redirect()->route('karyawan.index')->with('success', 'Data karyawan berhasil dihapus.');
     }
+    public function show($id)
+    {
+        // Ambil karyawan berdasarkan ID yang ada di parameter route
+        $karyawan = Karyawan::findOrFail($id);
+
+        // Pastikan karyawan yang sedang login hanya dapat melihat data miliknya
+        if (auth()->user()->id != $karyawan->id) {
+            return redirect()->route('home')->with('error', 'Akses ditolak: Data tidak sesuai');
+        }
+
+        // Tampilkan data karyawan ke view
+        return view('karyawan.show', compact('karyawan'));
+    }
+
+
 }

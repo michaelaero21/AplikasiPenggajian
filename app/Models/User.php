@@ -51,14 +51,18 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === 'Admin';
     }
 
     /**
      * Method untuk mengecek apakah user adalah pegawai.
      */
-    public function isPegawai(): bool
+    public function isKaryawan(): bool
     {
-        return $this->role === 'pegawai';
+        return $this->role === 'Karyawan';
+    }
+    public function karyawan()
+    {
+        return $this->hasOne(Karyawan::class);
     }
 }
