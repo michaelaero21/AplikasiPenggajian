@@ -8,11 +8,20 @@ use App\Models\Karyawan;
 
 class GajiKaryawanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $gajiKaryawan = GajiKaryawan::with('karyawan')->get();
-        return view('gaji.index', compact('gajiKaryawan'));
-    }
+        $kategori = $request->query('kategori');
+
+        $query = GajiKaryawan::with('karyawan');
+
+        if ($kategori === 'mingguan' || $kategori === 'bulanan') {
+            $query->where('kategori_gaji', $kategori);
+        }
+
+    $gajiKaryawan = $query->get();
+
+    return view('gaji.index', compact('gajiKaryawan', 'kategori'));
+}
 
     public function create()
     {

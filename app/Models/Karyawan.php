@@ -29,5 +29,9 @@ class Karyawan extends Model
         $this->absensi()->forceDelete();
         parent::delete();
     }
+    public function slipGaji()
+    {
+        return $this->hasMany(SlipGaji::class);
+    }  
 
 }

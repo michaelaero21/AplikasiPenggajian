@@ -12,6 +12,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\KaryawanDashboardController;
+use App\Http\Controllers\SlipGajiController;
 
 Route::get('/', function () {
     // Mengarahkan pengguna yang belum login ke halaman login
@@ -92,5 +93,12 @@ Route::middleware(['auth', 'check.admin.access'])->group(function () {
 // Custom Middleware Check Karyawan Access
 Route::middleware(['auth', 'check.karyawan.access'])->group(function () {
     Route::get('/absensi/karyawan', [AbsensiController::class, 'showForKaryawan'])->name('absensi.karyawan');
+});
+
+Route::prefix('slip-gaji')->controller(SlipGajiController::class)->group(function () {
+    Route::get('/', 'index')->name('slip-gaji.index');
+    Route::get('/preview/{id}', 'preview')->name('slip-gaji.preview');
+    Route::get('/download/{id}', 'download')->name('slip-gaji.download');
+    Route::post('/kirim-wa/{id}', 'sendWhatsApp')->name('slip-gaji.kirim-wa');
 });
 

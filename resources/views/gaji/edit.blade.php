@@ -37,7 +37,7 @@
                     <label for="kategori_gaji" class="form-label">Kategori Gaji:</label>
                     <select class="form-select" name="kategori_gaji" id="kategori_gaji" required>
                         <option value="" disabled>Pilih Kategori</option>
-                        <option value="Harian" {{ $gajiKaryawan->kategori_gaji == 'Harian' ? 'selected' : '' }}>Harian</option>
+                        <option value="Mingguan" {{ $gajiKaryawan->kategori_gaji == 'Mingguan' ? 'selected' : '' }}>Mingguan</option>
                         <option value="Bulanan" {{ $gajiKaryawan->kategori_gaji == 'Bulanan' ? 'selected' : '' }}>Bulanan</option>
                     </select>
                 </div>
