@@ -52,3 +52,8 @@
         @endif
     </tbody>
 </table>
+<script>
+    function confirmDelete() {
+        return confirm('Apakah Anda yakin ingin menghapus semua absensi karyawan ini untuk bulan dan tahun ini? Tindakan ini tidak dapat dibatalkan.');
+    }
+</script>

@@ -88,8 +88,13 @@
         <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}"><i class="fa fa-home"></i> Dashboard</a>
         <a href="{{ route('karyawan.index') }}" class="{{ request()->is('karyawan*') ? 'active' : '' }}"><i class="fa fa-users"></i> Karyawan</a>
         <a href="{{ route('absensi.index') }}" class="{{ request()->is('absensi*') ? 'active' : '' }}"><i class="fa fa-calendar-check"></i> Absensi</a>
-        <a href="{{ route('gaji.index') }}" class="{{ request()->is('gaji*') ? 'active' : '' }}"><i class="fa fa-money-bill"></i> Gaji</a>
-        <a href="#" class="{{ request()->is('laporan*') ? 'active' : '' }}"><i class="fa fa-file-alt"></i> Laporan</a>
+        <a href="{{ route('gaji.index') }}" class="{{ request()->is('gaji*') || request()->is('slip-gaji*') ? 'active' : '' }}">
+            <i class="fa fa-money-bill"></i> Gaji
+        </a>
+
+        <a href="{{ route('laporan.slip-gaji') }}" class="{{ request()->is('laporan*') ? 'active' : '' }}">
+            <i class="fa fa-file-alt"></i> Laporan
+        </a>
 
         <div class="logout">
             <form action="{{ route('logout') }}" method="POST">

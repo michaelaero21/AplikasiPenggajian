@@ -258,10 +258,11 @@
         </a>
 
         </a>
-        <a href="{{ route('gaji.index') }}" class="{{ request()->is('gaji*') ? 'active' : '' }}">
+        <a href="{{ route('gaji.index') }}" class="{{ request()->is('gaji*') || request()->is('slip-gaji*') ? 'active' : '' }}">
             <i class="fa fa-money-bill"></i> Gaji
         </a>
-        <a href="#" class="{{ request()->is('laporan*') ? 'active' : '' }}">
+
+        <a href="{{ route('laporan.slip-gaji') }}" class="{{ request()->is('laporan*') ? 'active' : '' }}">
             <i class="fa fa-file-alt"></i> Laporan
         </a>
 

@@ -33,5 +33,7 @@ class Karyawan extends Model
     {
         return $this->hasMany(SlipGaji::class);
     }  
+    // app/Models/Karyawan.php
+
 
 }

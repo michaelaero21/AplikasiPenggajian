@@ -10,33 +10,41 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <!-- Pencarian dan Tambah Gaji Karyawan -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <input type="text" id="search-input" class="form-control w-50 me-2" placeholder="Cari Karyawan...">
-        <a href="{{ route('gaji.create') }}" class="btn btn-success">Tambah Gaji Karyawan</a>
-    
+      <!-- Search bar tetap sendiri di baris atas -->
+    <div class="d-flex justify-content-start align-items-center mb-3">
+        <input type="text" id="search-input" class="form-control w-50" placeholder="Cari Karyawan...">
     </div>
-    <!-- Tombol Buat Slip -->
-    @if($gajiKaryawan->isNotEmpty())
-        <a href="{{ route('slip-gaji.index', ['karyawan' => $gajiKaryawan->first()->karyawan->id, 'periode' => date('F Y')]) }}"
-            class="btn btn-secondary btn-sm mt-1">
-            Buat Slip
-        </a>
-    @endif
 
+    <!-- Baris tombol filter kategori dan tombol aksi sejajar -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <!-- Filter kategori gaji -->
+        <div>
+            <label class="form-label d-block mb-2">Pilih Tipe Kategori Gaji:</label>
+            <div class="btn-group" role="group" aria-label="Filter Gaji">
+                <a href="{{ route('gaji.index') }}" class="btn btn-outline-primary {{ request('kategori') == null ? 'active' : '' }}">
+                    Semua
+                </a>
+                <a href="{{ route('gaji.index', ['kategori' => 'mingguan']) }}" class="btn btn-outline-primary {{ request('kategori') == 'mingguan' ? 'active' : '' }}">
+                    Mingguan
+                </a>
+                <a href="{{ route('gaji.index', ['kategori' => 'bulanan']) }}" class="btn btn-outline-primary {{ request('kategori') == 'bulanan' ? 'active' : '' }}">
+                    Bulanan
+                </a>
+            </div>
+        </div>
 
-    <!-- Filter Kategori Gaji -->
-    <div class="mb-3">
-        <label class="form-label d-block">Pilih Tipe Kategori Gaji:</label>
-        <a href="{{ route('gaji.index') }}" class="btn btn-outline-primary {{ request('kategori') == null ? 'active' : '' }}">
-            Semua
-        </a>
-        <a href="{{ route('gaji.index', ['kategori' => 'mingguan']) }}" class="btn btn-outline-primary {{ request('kategori') == 'mingguan' ? 'active' : '' }}">
-            Mingguan
-        </a>
-        <a href="{{ route('gaji.index', ['kategori' => 'bulanan']) }}" class="btn btn-outline-primary {{ request('kategori') == 'bulanan' ? 'active' : '' }}">
-            Bulanan
-        </a>
+        <!-- Tombol aksi "Buat Slip" dan "Tambah Data Gaji Karyawan" berdampingan -->
+        <div class="d-flex gap-2 flex-wrap">
+            @if($gajiKaryawan->isNotEmpty())
+                <a href="{{ route('slip-gaji.index', ['karyawan' => $gajiKaryawan->first()->karyawan->id, 'periode' => date('F Y')]) }}"
+                   class="btn btn-warning">
+                    Buat Slip Gaji
+                </a>
+            @endif
+            <a href="{{ route('gaji.create') }}" class="btn btn-success">
+                Tambah Data Gaji Karyawan
+            </a>
+        </div>
     </div>
 
     <!-- Tabel Gaji Karyawan -->

@@ -56,44 +56,52 @@
         <tr>
             <td class="label"><strong>PENERIMAAN :</strong></td>
             <td></td>
-            <td class="label"><strong>PENGELUARAN :</strong></td>
-            <td></td>
         </tr>
 
         <tr>
-            <td>Gaji Pokok</td><td>: Rp {{ number_format($gaji->gaji_pokok, 0, ',', '.') }}</td>
-            <td>Pot. PPH 21</td><td>: Rp {{ number_format($gaji->pot_pph21, 0, ',', '.') }}</td>
+            <td>Gaji Pokok</td>
+            <td>: Rp {{ number_format($slip->gaji_pokok ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td>Uang Makan & Transport</td><td>: Rp {{ number_format($gaji->uang_makan, 0, ',', '.') }}</td>
-            <td>Asuransi / BPJS</td><td>: Rp {{ number_format($gaji->pot_bpjs, 0, ',', '.') }}</td>
+            <td>Uang Makan</td>
+            <td>: Rp {{ number_format($slip->uang_makan ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td>Bonus (Absensi/Target)</td><td>: Rp {{ number_format($gaji->bonus, 0, ',', '.') }}</td>
+            <td>Uang Transport</td>
+            <td>: Rp {{ number_format($slip->uang_transport ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td>Lembur</td><td>: Rp {{ number_format($gaji->lembur, 0, ',', '.') }}</td>
+            <td>Tunjangan Pulsa</td>
+            <td>: Rp {{ number_format($slip->tunjangan_pulsa ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td>Tunj. Karyawan</td><td>: Rp {{ number_format($gaji->tunjangan_karyawan, 0, ',', '.') }}</td>
+            <td>Tunjangan Sewa</td>
+            <td>: Rp {{ number_format($slip->tunjangan_sewa ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td>Asuransi / BPJS</td><td>: Rp {{ number_format($gaji->asuransi, 0, ',', '.') }}</td>
+            <td>Lembur</td>
+            <td>: Rp {{ number_format($slip->lembur ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td>THR</td><td>: Rp {{ number_format($gaji->thr, 0, ',', '.') }}</td>
+            <td>Bonus</td>
+            <td>: Rp {{ number_format($slip->bonus ?? 0, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <td>THR</td>
+            <td>: Rp {{ number_format($slip->thr ?? 0, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <td>Insentif</td>
+            <td>: Rp {{ number_format($slip->insentif ?? 0, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <td>Asuransi/BPJS</td>
+            <td>: Rp {{ number_format($slip->asuransi ?? 0, 0, ',', '.') }}</td>
         </tr>
 
         <tr>
-            <td><strong>TOTAL (A)</strong></td>
-            <td>: <strong>Rp {{ number_format($gaji->total_penerimaan, 0, ',', '.') }}</strong></td>
-            <td><strong>TOTAL (B)</strong></td>
-            <td>: <strong>Rp {{ number_format($gaji->total_potongan, 0, ',', '.') }}</strong></td>
-        </tr>
-        <tr>
-            <td colspan="2"></td>
-            <td colspan="2"><strong>TOTAL PENERIMAAN (A - B) :</strong><br>
-            <strong>Rp {{ number_format($gaji->total_bersih, 0, ',', '.') }}</strong></td>
+            <td><strong>TOTAL DIBAYARKAN</strong></td>
+            <td>: <strong>Rp {{ number_format($slip->total_dibayar ?? 0, 0, ',', '.') }}</strong></td>
         </tr>
     </table>
 

@@ -7,7 +7,7 @@
     @php
         $timezone = 'Asia/Jakarta';
         $today = \Carbon\Carbon::now($timezone)->startOfDay();
-        $tanggalGajian = \Carbon\Carbon::create($today->year, $today->month, 25, 0, 0, 0, $timezone)->startOfDay();
+        $tanggalGajian = \Carbon\Carbon::create($today->year, $today->month, 1, 0, 0, 0, $timezone)->startOfDay();
 
         if ($today->gt($tanggalGajian)) {
             $tanggalGajian->addMonth();

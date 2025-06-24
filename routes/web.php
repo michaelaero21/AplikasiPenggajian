@@ -13,6 +13,7 @@ use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\KaryawanDashboardController;
 use App\Http\Controllers\SlipGajiController;
+use App\Http\Controllers\LaporanController;
 
 Route::get('/', function () {
     // Mengarahkan pengguna yang belum login ke halaman login
@@ -95,10 +96,33 @@ Route::middleware(['auth', 'check.karyawan.access'])->group(function () {
     Route::get('/absensi/karyawan', [AbsensiController::class, 'showForKaryawan'])->name('absensi.karyawan');
 });
 
-Route::prefix('slip-gaji')->controller(SlipGajiController::class)->group(function () {
-    Route::get('/', 'index')->name('slip-gaji.index');
-    Route::get('/preview/{id}', 'preview')->name('slip-gaji.preview');
-    Route::get('/download/{id}', 'download')->name('slip-gaji.download');
-    Route::post('/kirim-wa/{id}', 'sendWhatsApp')->name('slip-gaji.kirim-wa');
+
+Route::prefix('slip-gaji')->name('slip-gaji.')->controller(SlipGajiController::class)->group(function () {
+    // Halaman utama slip gaji
+    Route::get('/', 'index')->name('index'); // URL: /slip-gaji
+    
+    // Preview, download, kirim WA per slip
+    Route::get('/preview/{slipGaji}', 'previewPdf')->name('preview');
+    Route::get('/download/{slipGaji}', 'downloadPdf')->name('download');
+    Route::post('/kirim-wa/{slipGaji}', 'kirimWhatsapp')->name('kirim_wa');
+
+    // Generate slip satuan (dari tombol di table)
+    
+    Route::post('/generate-slip', 'generateSlipFromIndex')->name('generate');
+
+    // Manual dan otomatis hitung gaji
+    Route::get('/manual-hitung', 'formManualHitung')->name('manual_form');
+    Route::post('/manual-hitung', 'prosesManualHitung')->name('manual_proses');
+    Route::post('/hitung-otomatis', 'hitungOtomatis')->name('hitung_otomatis');
+
+    // 🔽 Route aksi massal
+    Route::post('/generate-massal', 'generateMassal')->name('generate_massal');
+    Route::post('/download-massal', 'downloadMassal')->name('download_massal');
+    Route::post('/kirim-wa-massal', 'kirimMassal')->name('kirim_wa_massal');
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/laporan/slip-gaji', [LaporanController::class, 'index'])->name('laporan.slip-gaji');
+});
+
 

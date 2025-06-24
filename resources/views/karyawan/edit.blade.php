@@ -7,7 +7,7 @@
             <h4>Edit Karyawan</h4>
         </div>
         <div class="form-edit-karyawan">
-            <form action="{{ route('karyawan.update', $karyawan->id) }}" method="POST">
+            <form id="edit-karyawan-form" action="{{ route('karyawan.update', $karyawan->id) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -19,7 +19,7 @@
 
                     <div class="col-md-6 mb-3">
                         <label for="nomor_telepon" class="form-label">Nomor Telepon</label>
-                        <input type="tel" id="nomor_telepon" name="nomor_telepon" class="form-control" value="{{ $karyawan->nomor_telepon }}" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
+                        <input type="tel" id="nomor_telepon" name="nomor_telepon" class="form-control" value="{{ $karyawan->nomor_telepon }}" pattern="[0-9\-]*" oninput="formatInputPhone(this)" required>
                     </div>
                 </div>
 
@@ -34,7 +34,6 @@
                         </select>
                     </div>
 
-                    <!-- Input Jenis Kelamin -->
                     <div class="col-md-6 mb-3">
                         <label class="form-label">Jenis Kelamin</label>
                         <div class="form-check">
@@ -61,4 +60,61 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Fungsi format nomor telepon ke format xxxx-xxxx-xxxx
+    function formatPhoneNumber(phoneNumber) {
+        // Hapus semua karakter selain angka
+        let digits = phoneNumber.replace(/\D/g, '');
+        
+        // Potong maksimal 12 digit (4+4+4)
+        digits = digits.substring(0, 12);
+        
+        let part1 = digits.substring(0, 4);
+        let part2 = digits.substring(4, 8);
+        let part3 = digits.substring(8, 12);
+        
+        if(part3) {
+            return part1 + '-' + part2 + '-' + part3;
+        } else if(part2) {
+            return part1 + '-' + part2;
+        } else if(part1) {
+            return part1;
+        }
+        return '';
+    }
+
+    // Fungsi format saat input di field nomor telepon (live formatting)
+    function formatInputPhone(input) {
+        let cursorPos = input.selectionStart;
+        let originalLength = input.value.length;
+
+        input.value = formatPhoneNumber(input.value);
+
+        // Mengatur posisi cursor agar tidak lompat-lompat aneh saat input
+        let newLength = input.value.length;
+        cursorPos += newLength - originalLength;
+        input.setSelectionRange(cursorPos, cursorPos);
+    }
+
+    // Validasi panjang nomor telepon (minimal 10 digit, maksimal 13 digit) saat submit form
+    document.getElementById('edit-karyawan-form').addEventListener('submit', function(event) {
+        let phoneInput = document.getElementById('nomor_telepon');
+        // Ambil hanya digit tanpa strip
+        let digits = phoneInput.value.replace(/\D/g, '');
+
+        if(digits.length < 10 || digits.length > 13) {
+            alert('Nomor telepon harus terdiri dari 10 sampai 13 digit angka.');
+            phoneInput.focus();
+            event.preventDefault(); // cegah submit form
+            return false;
+        }
+    });
+
+    // Saat halaman sudah load, format nomor telepon awal yang ada di input
+    document.addEventListener('DOMContentLoaded', function() {
+        let phoneInput = document.getElementById('nomor_telepon');
+        phoneInput.value = formatPhoneNumber(phoneInput.value);
+    });
+</script>
 @endsection

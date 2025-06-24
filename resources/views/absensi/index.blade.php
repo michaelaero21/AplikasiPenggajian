@@ -42,14 +42,17 @@
     </div>
 
     <!-- Form upload Excel -->
-    <form action="{{ route('absensi.preview') }}" method="POST" enctype="multipart/form-data" class="mb-4">
-        @csrf
-        <div class="mb-3">
-            <label for="file" class="form-label">Upload Excel Absensi</label>
-            <input class="form-control" type="file" id="file" name="file" required>
-        </div>
-        <button type="submit" class="btn btn-success">Upload</button>
-    </form>
+<form action="{{ route('absensi.preview') }}" method="POST" enctype="multipart/form-data" class="mb-4">
+    @csrf
+    <div class="mb-3">
+        <label for="file" class="form-label">Upload Excel Absensi</label>
+        <input class="form-control" type="file" id="file" name="file" accept=".xlsx,.xls" required>
+        @error('file')
+            <div class="alert alert-danger mt-2">{{ $message }}</div>
+        @enderror
+    </div>
+    <button type="submit" class="btn btn-success">Upload</button>
+</form>
 
     <!-- Pencarian -->
     <div class="d-flex justify-content-between align-items-center mb-3">
