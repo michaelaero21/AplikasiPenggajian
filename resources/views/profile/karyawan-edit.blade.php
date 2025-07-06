@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.karyawan')
 
 @section('content')
 <div class="container">
@@ -8,22 +8,23 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('profile.karyawan.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
-
+        @php($u = auth()->user())
         <!-- Foto Profil -->
         <div class="mb-3 text-center">
-            @if ($user->profile_photo)
-            <img src="{{ asset('storage/profile_photos/' . $user->profile_photo) }}" alt="Foto Profil" 
-            class="rounded-circle" width="120" height="120" style="object-fit: cover; border: 2px solid #fff;">
+           @if ($u && $u->profile_photo)
+                <img src="{{ asset('storage/profile_photos/'.$u->profile_photo) }}"
+                    alt="Foto Profil"
+                    class="rounded-circle" width="120" height="120"
+                    style="object-fit: cover; border: 2px solid #fff;">
             @else
-                <!-- Ikon Default jika Tidak Ada Foto -->
-                <i class="bi bi-person-circle" style="font-size: 120px; color: #fff;"></i>
+                <i class="bi bi-person-circle" style="font-size:120px;color:#fff;"></i>
             @endif
         </div>
 
         <!-- Tombol Hapus Foto Profil -->
-        @if ($user->profile_photo)
+        @if ($u->profile_photo)
         <div class="mb-3 text-center">
             <button type="submit" name="remove_profile_photo" id="remove_profile_photo" value="1" class="btn btn-danger">Hapus Foto Profil</button>
         </div>
@@ -41,8 +42,7 @@
         <!-- Input Nama -->
         <div class="mb-3">
             <label for="name" class="form-label">Nama</label>
-            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
-                   value="{{ old('name', $user->name) }}">
+            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $u->name) }}">
             @error('name')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -51,37 +51,31 @@
         <!-- Username (read‑only) -->
         <div class="mb-3">
             <label class="form-label">Username</label>
-            <input type="text" class="form-control" value="{{ $user->username }}" readonly>
+            <input type="text" class="form-control" value="{{ $u->username }}" readonly>
         </div>
 
         <!-- Input Alamat -->
         <div class="mb-3">
             <label for="alamat" class="form-label">Alamat</label>
-            <input type="alamat" name="alamat" class="form-control @error('alamat') is-invalid @enderror"
-                   value="{{ old('alamat', $user->alamat) }}">
+            <input type="text" name="alamat" class="form-control @error('alamat') is-invalid @enderror" value="{{ old('alamat', $u->alamat) }}">
             @error('alamat')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
-         <!-- Input Nomor Telepon -->
+        <!-- Input Nomor Telepon -->
         <div class="mb-3">
             <label for="nomor_telepon" class="form-label">Nomor Telepon</label>
-            <input
-                type="text"                             
-                name="nomor_telepon"
-                id="nomor_telepon"  
-                maxlength="20"                    
-                class="form-control @error('nomor_telepon') is-invalid @enderror"
-                value="{{ old('nomor_telepon', $user->nomor_telepon) }}"
-                >
+            <input type="text" name="nomor_telepon" 
+            id="nomor_telepon" maxlength="20" 
+            class="form-control @error('nomor_telepon') is-invalid @enderror" 
+            value="{{ old('nomor_telepon', $u->nomor_telepon) }}">
             @error('nomor_telepon')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
 
-
-         <!-- Password Lama -->
+        <!-- Password Lama -->
         <div class="mb-3">
             <label for="current_password" class="form-label">Password Lama</label>
             <div class="input-group">
@@ -120,13 +114,13 @@
         <!-- Simpan Perubahan -->
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-            <a href="{{ route('profile.show') }}" class="btn btn-secondary">Batal</a>
-       </div>
+            <a href="{{ route('profile.show.karyawan') }}" class="btn btn-secondary">Batal</a>
+        </div>
     </form>
 </div>
 
 <script>
-   // ───────────────────────── Toggle semua password field
+// ───────────────────────── Toggle semua password field
 window.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.toggle-password').forEach(btn => {
         btn.addEventListener('click', function () {
@@ -164,5 +158,4 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 </script>
-
 @endsection

@@ -1,4 +1,4 @@
-@extends('layouts.app') {{-- Ganti jika layout-nya beda --}}
+@extends('layouts.karyawan') {{-- Ganti jika layout-nya beda --}}
 
 @section('title', 'Info Akun')
 @section('form_title', 'Informasi Akun')
@@ -31,7 +31,7 @@
         if ($len <= 8)   return preg_replace('/(\d{4})(\d+)/', '$1-$2', $digits);
         /* len ≥ 9 */    return preg_replace('/(\d{4})(\d{4})(\d+)/', '$1-$2-$3', $digits);
     }
-    
+
     $jabatan = match($user->role) {
         'admin' => 'Administrator',
         'staff' => 'Staf HR',
@@ -48,7 +48,7 @@
                 <!-- Ikon Default jika Tidak Ada Foto -->
                 <i class="bi bi-person-circle" style="font-size: 120px; color: #fff;"></i>
             @endif
-    <h4 class="mt-3">{{ $user->name ?? 'Tidak ada data' }}</h4>
+    <h4 class="mt-3">{{ $user->name ?? 'Tidak ada data'}}</h4>
     <p class="text-muted mb-0">{{ $user->username ?? 'Tidak ada data'}}</p>
 </div>
 
@@ -77,12 +77,12 @@
     </li>
     <li class="list-group-item d-flex justify-content-between align-items-center">
         <strong>Tanggal Bergabung</strong>
-        <span>{{ $user->created_at->format('d M Y') ?? 'Tidak ada data'}}</span>
+        <span>{{ $user->created_at->format('d M Y') }}</span>
     </li>
 </ul>
 
 <div class="mt-4 text-center">
-    <a href="{{ route('profile.edit') }}" class="btn btn-outline-primary">
+    <a href="{{ route('profile.edit.karyawan') }}" class="btn btn-outline-primary">
         <i class="fa fa-edit me-1"></i> Edit Profil
     </a>
 </div>

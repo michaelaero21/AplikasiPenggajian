@@ -226,6 +226,72 @@
             }
         }
     </style>
+     <style>
+     html, body {
+        height: 100%;
+        margin: 0;
+        }
+
+    .wrapper {
+        display: flex;
+        height: 100vh;
+        }
+
+    .main {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        min-height: 100vh;
+        background: #f0f0f0;
+        }
+
+    .content {
+        flex-grow: 1;
+        padding: 20px;
+        }
+
+    .footer-custom {
+        background: linear-gradient(135deg, var(--brand-start, #0d47a1), var(--brand-end, #1976d2));
+        color: #fff;
+        padding: 14px 20px;
+        display: flex;
+        justify-content: center;
+
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 14px;
+        font-weight: 500;
+        
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+    .logo-footer {
+        width: 40px;
+        height: auto;
+        object-fit: contain;
+        }
+
+    @media (max-width: 768px) {
+        .wrapper {
+            flex-direction: column;
+        }
+
+        .sidebar {
+            width: 100%;
+            height: auto;
+        }
+
+        .main {
+            margin-left: 0;
+        }
+
+        .footer-custom {
+            flex-wrap: wrap;
+            text-align: center;
+        }
+    }
+
+    </style>
 </head>
 <body>
 
@@ -236,7 +302,7 @@
     <div class="sidebar">
         <div class="text-center mb-4 position-relative">
         @if (Auth::check())
-            <a href="{{ route('profile.show') }}" class="profile-box {{ request()->is('profile*') ? 'active' : '' }}">
+            <a href="{{ route('profile.show.karyawan') }}" class="profile-box {{ request()->is('profile*') ? 'active' : '' }}">
                 @if (Auth::user()->profile_photo)
                     <img src="{{ asset('storage/profile_photos/' . Auth::user()->profile_photo) }}" alt="Foto Profil" class="rounded-circle" width="80" height="80" style="object-fit: cover; border: 2px solid #fff;">
                 @else
@@ -247,26 +313,34 @@
         @endif
         </div>
 
-        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">
-            <i class="fa fa-home"></i> Riwayat Absensi
+        <a href="{{ route('karyawan.dashboard') }}" class="{{ request()->routeIs('karyawan.dashboard') ? 'active' : '' }}">
+            <i class="fa fa-home"></i> Dashboard
         </a>
-        <a href="{{ route('karyawan.index') }}" class="{{ request()->is('karyawan*') ? 'active' : '' }}">
-            <i class="fa fa-users"></i> Riwayat Gaji
+        <a href="{{ route('slip-gaji.karyawan') }}" class="{{ request()->is('slip-gaji*') ? 'active' : '' }}">
+            <i class="fa fa-money-bill-wave"></i> Riwayat Gaji
         </a>
 
         <div class="logout">
-            <form action="{{ route('logout') }}" method="POST">
+            <form id="logout-form" action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" style="background: none; border: none; color: inherit;">
+                <button type="button" onclick="confirmLogout()" style="background: none; border: none; color: inherit;">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </form>
         </div>
     </div>
 
-    <div class="content">
-        @yield('content')
-    </div>
+   <main class="main">
+    <section class="content">
+      @yield('content')
+    </section>
+
+    <footer class="footer-custom">
+      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo-footer" />
+      <span>&copy; {{ date('Y') }} CV Arindra Mandiri. All rights reserved.</span>
+    </footer>
+  </main>
+</div>
 </div>
 
 <script>
@@ -274,6 +348,11 @@
         const sidebar = document.querySelector('.sidebar');
         sidebar.classList.toggle('show');
     }
+    function confirmLogout() {
+    if (confirm('Apakah kamu yakin ingin keluar?')) {
+        document.getElementById('logout-form').submit();
+    }
+}
 </script>
 
 </body>

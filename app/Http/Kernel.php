@@ -53,8 +53,9 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected $routeMiddleware = [
+    protected $middlewareAliases = [
         'auth' => \App\Http\Middleware\Authenticate::class,
+        'check.active' => \App\Http\Middleware\CheckUserActive::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
@@ -64,9 +65,6 @@ class Kernel extends HttpKernel
 
         // Custom middleware
         'csp' => \App\Http\Middleware\ContentSecurityPolicy::class,
-        'Admin' => \App\Http\Middleware\AdminMiddleware::class,
-        'Karyawan' => \App\Http\Middleware\KaryawanMiddleware::class,
-        'check.admin.access' => \App\Http\Middleware\CheckAdminAccess::class,
-        'check.karyawan.access' => \App\Http\Middleware\CheckKaryawanAccess::class,
+        'role' => \App\Http\Middleware\Role::class,
     ];
 }

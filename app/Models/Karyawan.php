@@ -11,8 +11,11 @@ class Karyawan extends Model
     use HasFactory;
     protected $table = 'karyawans'; 
 
-    protected $fillable = ['nama', 'jabatan', 'kategori_gaji', 'nomor_telepon', 'jenis_kelamin', 'alamat_karyawan'];
-
+    protected $fillable = ['nama', 'jabatan', 'kategori_gaji', 'nomor_telepon', 'jenis_kelamin', 'alamat_karyawan', 'status', 'user_id'];
+    public function user()
+{
+    return $this->belongsTo(User::class, 'user_id', 'id');
+}
     public function gajiKaryawan()
     {
         return $this->hasOne(GajiKaryawan::class, 'karyawan_id');

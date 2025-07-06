@@ -40,6 +40,9 @@
                 <th>Alamat</th>
                 <th>Jenis Kelamin</th>
                 <th>No. Telepon</th>
+                <th>Status</th>
+                <th>Waktu Diaktifkan</th>
+                <th>Waktu Dinonaktifkan</th>
                 @if(auth()->user()->role !== 'Karyawan')
                     <th>Aksi</th>
                 @endif
@@ -54,15 +57,42 @@
                     <td>{{ $karyawan->alamat_karyawan }}</td>
                     <td>{{ $karyawan->jenis_kelamin }}</td>
                     <td id="telepon-{{ $karyawan->id }}" data-phone="{{ $karyawan->nomor_telepon }}">{{ $karyawan->nomor_telepon }}</td>
-                    
+                    @php
+                    $status = optional($karyawan->user)->status;   // bisa null
+                    $badge  = match ($status) {
+                        'Aktif'    => 'bg-success',   // hijau
+                        'Nonaktif' => 'bg-danger',    // merah
+                        default    => 'bg-secondary', // abu-abu
+                    };
+                @endphp
+
+                <td>
+                    <span class="badge {{ $badge }}">
+                        {{ $status ?? '-' }}
+                    </span>
+                </td>
+
+
+                    {{-- Waktu diaktifkan --}}
+                    <td>
+                        {{ optional(optional($karyawan->user)->waktu_diaktifkan)?->timezone('Asia/Jakarta')
+                            ?->format('d-m-Y H:i') ?? '-' }}
+                    </td>
+
+                    {{-- Waktu dinonaktifkan --}}
+                    <td>
+                        {{ optional(optional($karyawan->user)->waktu_dinonaktifkan)?->timezone('Asia/Jakarta')
+                            ?->format('d-m-Y H:i') ?? '-' }}
+                    </td>
+
                     @if(auth()->user()->role !== 'Karyawan')
                     <td>
                         <a href="{{ route('karyawan.edit', $karyawan->id) }}" class="btn btn-primary btn-sm">Edit</a>
-                        <form action="{{ route('karyawan.destroy', $karyawan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
+                        <!-- <form action="{{ route('karyawan.destroy', $karyawan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                        </form>
+                        </form> -->
                     </td>
                     @endif
                 </tr>

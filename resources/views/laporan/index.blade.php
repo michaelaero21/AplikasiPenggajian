@@ -13,6 +13,7 @@
     <!-- Filter kategori dan rentang tanggal -->
     <form method="GET" class="row g-3 mb-4">
         <div class="col-md-3">
+            <label class="form-label d-block mb-2">Pilih Tipe Kategori Gaji:</label>
             <select name="kategori_gaji" class="form-select">
                 <option value="semua" {{ request('kategori_gaji') == 'semua' ? 'selected' : '' }}>Semua</option>
                 <option value="mingguan" {{ request('kategori_gaji') == 'mingguan' ? 'selected' : '' }}>Mingguan</option>
@@ -20,12 +21,15 @@
             </select>
         </div>
         <div class="col-md-3">
+            <label class="form-label d-block mb-2">Dari Tanggal:</label>
             <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
         </div>
         <div class="col-md-3">
+            <label class="form-label d-block mb-2">Sampai Tanggal:</label>
             <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
         </div>
         <div class="col-md-3">
+            <label class="form-label d-block mb-2">Aksi</label>
             <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
         </div>
     </form>

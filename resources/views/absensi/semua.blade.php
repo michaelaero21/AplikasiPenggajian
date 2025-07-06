@@ -33,15 +33,25 @@
                             @endif
                         </td>
                     @endforeach
-                    <td>
-                        <form action="{{ route('absensi.deleteAll', $karyawan->id) }}" method="POST"
+                      <td class="text-nowrap">
+                        {{-- ➡︎ Tombol EDIT ke halaman imported --}}
+                        <a href="{{ route('absensi.edit', [   {{-- tetap GET untuk menampilkan halaman pindah --}}
+                                'karyawan' => $karyawan->id,
+                                'month'    => $month,
+                                'year'     => $year
+                            ]) }}"
+                            class="btn btn-primary btn-sm">
+                            Edit
+                        </a>
+
+                        <!-- <form action="{{ route('absensi.deleteAll', $karyawan->id) }}" method="POST"
                             onsubmit="return confirm('Yakin hapus semua absensi karyawan ini?')">
                             @csrf
                             @method('DELETE')
                             <input type="hidden" name="month" value="{{ $month }}">
                             <input type="hidden" name="year" value="{{ $year }}">
                             <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                        </form>
+                        </form> -->
                     </td>
                 </tr>
             @endforeach

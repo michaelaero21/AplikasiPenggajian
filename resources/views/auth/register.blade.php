@@ -1,4 +1,4 @@
-@extends('layouts.login')
+<!-- @extends('layouts.login')
 
 @section('title', 'Register')
 @section('form_title', 'Registrasi')
@@ -44,4 +44,4 @@
         Sudah punya akun? <a href="{{ route('login') }}">Login</a>
     </p>
 </form>
-@endsection
+@endsection -->

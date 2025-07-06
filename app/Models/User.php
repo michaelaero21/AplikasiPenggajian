@@ -18,9 +18,13 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'email',
+        'username',
+        'alamat','nomor_telepon',
         'password',
-        'role',  // Menambahkan kolom 'role' ke dalam daftar yang dapat diisi
+        'role',
+        'status',
+        'waktu_diaktifkan',
+        'waktu_dinonaktifkan',  // Menambahkan kolom 'role' ke dalam daftar yang dapat diisi
     ];
 
     /**
@@ -41,11 +45,15 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
+            'waktu_diaktifkan'     => 'datetime',
+            'waktu_dinonaktifkan'  => 'datetime',
             'password' => 'hashed',
         ];
     }
-
+    public function scopeAktif($q)
+    {
+        return $q->where('status', 'Aktif');
+    }
     /**
      * Method untuk mengecek apakah user adalah admin.
      */
@@ -65,4 +73,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(Karyawan::class);
     }
+    public function slipGajis()
+{
+    return $this->hasMany(SlipGaji::class, 'karyawan_id');
+}
+
+
 }

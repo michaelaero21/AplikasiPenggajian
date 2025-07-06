@@ -8,34 +8,41 @@ class CreateSlipGajisTable extends Migration
     public function up()
     {
         Schema::create('slip_gajis', function (Blueprint $table) {
-            $table->id();
+        $table->id();
 
-            // Relasi ke tabel karyawans
-            $table->foreignId('karyawan_id')->constrained('karyawans')->onDelete('cascade');
+        $table->foreignId('karyawan_id')
+            ->constrained('karyawans')
+            ->onDelete('cascade');
 
-            // Informasi Periode dan Kategori Gaji
-            $table->string('periode'); // Contoh: "6-13 Juni 2025" atau "April 2025"
-            $table->enum('kategori_gaji', ['mingguan', 'bulanan']);
+        // Periode & kategori
+        $table->string('periode');                 // "6-13 Juni 2025" / "April 2025"
+        $table->enum('kategori_gaji',['mingguan','bulanan']);
 
-            // Data perhitungan absensi
-            $table->integer('jumlah_hadir')->default(0);
-            $table->decimal('uang_makan', 15, 2)->default(0);
-            $table->decimal('lembur', 15, 2)->default(0);
-            $table->decimal('bonus', 15, 2)->default(0);
-            $table->decimal('potongan', 15, 2)->default(0);
+        // Absensi & harian
+        $table->integer('jumlah_hadir')->default(0);
+        $table->decimal('uang_makan', 15, 2)->default(0);
+        $table->decimal('uang_transport', 15, 2)->default(0);
+        $table->decimal('lembur', 15, 2)->default(0);
+        $table->decimal('bonus', 15, 2)->default(0);
 
-            // Komponen khusus untuk bulanan
-            $table->decimal('gaji_pokok', 15, 2)->default(0);
+        // Komponen mingguan/bulanan
+        $table->decimal('gaji_pokok', 15, 2)->default(0);
+        $table->decimal('thr',        15, 2)->default(0);
+        $table->decimal('tunjangan_pulsa', 15, 2)->default(0);
+        $table->decimal('tunjangan_sewa',  15, 2)->default(0);
+        $table->decimal('asuransi',        15, 2)->default(0);
+        $table->decimal('insentif',        15, 2)->default(0);
 
-            // Total akhir
-            $table->decimal('total_dibayar', 15, 2)->default(0);
+        // Total akhir
+        $table->decimal('total_dibayar', 15, 2)->default(0);
 
-            // File PDF dan status pengiriman
-            $table->string('file_pdf')->nullable();
-            $table->enum('status_kirim', ['belum', 'terkirim'])->default('belum');
+        // Dokumen & status
+        $table->string('file_pdf')->nullable();
+        $table->enum('status_kirim',['belum','terkirim'])->default('belum');
 
-            $table->timestamps();
-        });
+        $table->timestamps();
+    });
+
     }
 
     public function down()

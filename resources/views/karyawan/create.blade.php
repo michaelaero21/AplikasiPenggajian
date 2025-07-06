@@ -110,5 +110,13 @@
             e.preventDefault();
         }
     });
+    document.addEventListener('DOMContentLoaded', () => {
+    const namaInput = document.getElementById('nama');
+
+    namaInput.addEventListener('input', () => {
+        // buang seluruh karakter NON‑huruf & NON‑spasi
+        namaInput.value = namaInput.value.replace(/[^A-Za-z\s]/g, '');
+    });
+});
 </script>
 @endsection

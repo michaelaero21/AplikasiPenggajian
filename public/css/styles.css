@@ -49,3 +49,49 @@
     padding: 20px;
     width: calc(100% - 250px);
 }
+:root{
+    /* gampang ganti tema */
+    --brand-start:#6c5ce7;
+    --brand-end:#4834d4;
+    --sidebar-bg:#2d2d2d;
+}
+
+body{
+    font-family: Arial, sans-serif;
+    background:#2f2f2f;               /* abu gelap mirip screenshot */
+}
+
+/* ===== FOOTER ===== */
+.footer-custom{
+    background:linear-gradient(135deg,var(--brand-start) 0%,var(--brand-end) 100%);
+    color:#fff;
+    padding:15px 20px;
+    border-top:4px solid rgba(255,255,255,.2);
+    text-align:center;
+    font-size:14px;
+    font-weight:500;
+    box-shadow:0 -4px 20px rgba(0,0,0,.15);
+
+    /* flex supaya logo + teks rapi */
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:.5rem;
+    flex-wrap:wrap;
+}
+
+.logo-footer{
+    width:22px;                /* kecil & harmonis */
+    height:auto;
+    filter:brightness(0) invert(1);
+    transition:transform .3s ease;
+}
+.logo-footer:hover{ transform:scale(1.1); }
+
+/* ===== FOOTER di HP ===== */
+@media(max-width:768px){
+    .footer-custom{font-size:13px;padding:12px 16px;}
+}
+
+/* ===== Tombol toggle sidebar (tetap) ===== */
+.toggle-btn{ /* … seperti sebelumnya … */ }

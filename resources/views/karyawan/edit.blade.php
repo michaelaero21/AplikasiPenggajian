@@ -53,10 +53,21 @@
                         <textarea id="alamat_karyawan" name="alamat_karyawan" class="form-control" rows="2" required>{{ $karyawan->alamat_karyawan }}</textarea>
                     </div>
                 </div>
-
+                <div class="mb-3">
+                    <label>Status Akun</label>
+                    <select name="status" class="form-select">
+                        <option value="Aktif" {{ $karyawan->user->status === 'Aktif' ? 'selected' : '' }}>Aktif</option>
+                        <option value="Nonaktif" {{ $karyawan->user->status === 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+                    </select>
+                </div>
                 <button type="submit" class="btn btn-primary">Update</button>
                 <a href="{{ route('karyawan.index') }}" class="btn btn-secondary">Batal</a>
-            </form>
+        </form>
+        <form method="POST" action="{{ route('karyawan.resetPassword', $karyawan->id) }}">
+            @csrf
+            @method('PUT')
+            <button class="btn btn-warning mt-2" type="submit" onclick="return confirm('Reset password ke username?')">Reset Password</button>
+        </form>
         </div>
     </div>
 </div>
@@ -115,6 +126,14 @@
     document.addEventListener('DOMContentLoaded', function() {
         let phoneInput = document.getElementById('nomor_telepon');
         phoneInput.value = formatPhoneNumber(phoneInput.value);
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+    const namaInput = document.getElementById('nama');
+
+    namaInput.addEventListener('input', () => {
+        // buang seluruh karakter NON‑huruf & NON‑spasi
+        namaInput.value = namaInput.value.replace(/[^A-Za-z\s]/g, '');
+    });
     });
 </script>
 @endsection

@@ -221,19 +221,22 @@ class AbsensiController extends Controller
            $kategoriGaji = strtolower($karyawan->kategori_gaji ?? '');
 
             if ($kategoriGaji === 'bulanan') {
-                return redirect()->route('absensi.show', [
+                return redirect()->route('absensi.imported', [
+                    'karyawan' => $karyawan->id,
                     'tipe' => 'bulanan',
                     'month' => $month,
                     'year' => $year,
                 ])->with('success', 'Import absensi '. $karyawan->nama .' bulanan berhasil.');
             } elseif ($kategoriGaji === 'mingguan') {
-                return redirect()->route('absensi.show', [
+                return redirect()->route('absensi.imported', [
+                    'karyawan' => $karyawan->id,
                     'tipe' => 'mingguan',
                     'month' => $month,
                     'year' => $year,
                 ])->with('success', 'Import absensi '. $karyawan->nama .' mingguan berhasil.');
             } else {
-                return redirect()->route('absensi.show', [
+                return redirect()->route('absensi.imported', [
+                    'karyawan' => $karyawan->id,
                     'tipe' => 'semua',
                     'month' => $month,
                     'year' => $year,
@@ -246,7 +249,85 @@ class AbsensiController extends Controller
             return back()->with('error', 'Gagal import data: ' . $e->getMessage());
         }
     }
+    public function showImported($karyawan_id, Request $request)
+{
+    $year  = $request->get('year', now()->year);
+    $month = $request->get('month', now()->month);
 
+    $karyawan = Karyawan::findOrFail($karyawan_id);
+
+    $absensi = Absensi::where('karyawan_id', $karyawan_id)
+        ->whereYear('tanggal', $year)
+        ->whereMonth('tanggal', $month)
+        ->orderBy('tanggal')
+        ->get();
+
+    $days = $this->generateDays($year, $month);
+
+    return view('absensi.imported', compact(
+        'karyawan', 'absensi', 'year', 'month', 'days'
+    ));
+}
+
+// App\Http\Controllers\AbsensiController.php
+public function editAbsensi(Request $request, $oldKaryawanId)
+{
+    $validated = $request->validate([
+        'target_karyawan_id' => 'required|integer|exists:karyawans,id',
+        'month'              => 'required|integer|min:1|max:12',
+        'year'               => 'required|integer|min:2000',
+    ]);
+    $targetKaryawan = Karyawan::find($validated['target_karyawan_id']);
+    $sudahAda = Absensi::where('karyawan_id', $validated['target_karyawan_id'])
+        ->whereYear('tanggal', $validated['year'])
+        ->whereMonth('tanggal', $validated['month'])
+        ->exists();
+
+    if ($sudahAda) {
+        return back()->with('error', 'Data absensi karyawan "' . $targetKaryawan->nama . '" di bulan tersebut sudah ada.');
+    }
+    DB::transaction(function () use ($validated, $oldKaryawanId) {
+        Absensi::where('karyawan_id', $oldKaryawanId)
+            ->whereYear('tanggal', $validated['year'])
+            ->whereMonth('tanggal', $validated['month'])
+            ->update([
+                'karyawan_id'   => $validated['target_karyawan_id'],
+                'nama_karyawan' => Karyawan::find($validated['target_karyawan_id'])->nama,
+            ]);
+    });
+
+    // ⬇︎ Redirect ke halaman imported karyawan TUJUAN
+    return redirect()->route('absensi.imported', [
+        'karyawan' => $validated['target_karyawan_id'],
+        'month'    => $validated['month'],
+        'year'     => $validated['year'],
+    ])->with('success', 'Data absensi berhasil dipindahkan.');
+}
+
+public function showEditForm(Request $request, $karyawanId)
+{
+    $month = $request->query('month', now()->month);
+    $year  = $request->query('year',  now()->year);
+
+    $oldKaryawan     = Karyawan::findOrFail($karyawanId);
+
+    // ⬇︎  ambil semua absensi karyawan lama pada bulan & tahun itu
+    $absensi = Absensi::where('karyawan_id', $karyawanId)
+        ->whereYear('tanggal', $year)
+        ->whereMonth('tanggal', $month)
+        ->orderBy('tanggal')
+        ->get();
+
+    $targetKaryawans = Karyawan::where('id', '!=', $karyawanId)->orderBy('nama')->get();
+
+    return view('absensi.edit', [
+        'oldKaryawan'     => $oldKaryawan,
+        'absensi'         => $absensi,        // 🠔 kirim ke view
+        'targetKaryawans' => $targetKaryawans,
+        'month'           => $month,
+        'year'            => $year,
+    ]);
+}
     private function generateDays($year, $month)
     {
         $days = [];
