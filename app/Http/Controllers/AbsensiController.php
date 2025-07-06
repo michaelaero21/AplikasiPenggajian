@@ -277,32 +277,48 @@ public function editAbsensi(Request $request, $oldKaryawanId)
         'month'              => 'required|integer|min:1|max:12',
         'year'               => 'required|integer|min:2000',
     ]);
-    $targetKaryawan = Karyawan::find($validated['target_karyawan_id']);
+
+    // ── 1. Cek duplikasi pada karyawan target
     $sudahAda = Absensi::where('karyawan_id', $validated['target_karyawan_id'])
         ->whereYear('tanggal', $validated['year'])
         ->whereMonth('tanggal', $validated['month'])
         ->exists();
 
     if ($sudahAda) {
-        return back()->with('error', 'Data absensi karyawan "' . $targetKaryawan->nama . '" di bulan tersebut sudah ada.');
+        $namaTarget = Karyawan::find($validated['target_karyawan_id'])->nama;
+        return back()->with('error', 'Data absensi karyawan "' . $namaTarget . '" di bulan tersebut sudah ada.');
     }
+
+    // ── 2. Cek apakah ada data sumber untuk dipindah
+    $adaDataSumber = Absensi::where('karyawan_id', $oldKaryawanId)
+        ->whereYear('tanggal', $validated['year'])
+        ->whereMonth('tanggal', $validated['month'])
+        ->exists();
+
+    if (!$adaDataSumber) {
+        return back()->with('error', 'Tidak ada data absensi karyawan yang dapat dipindahkan.');
+    }
+
+    // ── 3. Jalankan pemindahan dalam transaksi
     DB::transaction(function () use ($validated, $oldKaryawanId) {
+        $namaBaru = Karyawan::find($validated['target_karyawan_id'])->nama;
+
         Absensi::where('karyawan_id', $oldKaryawanId)
             ->whereYear('tanggal', $validated['year'])
             ->whereMonth('tanggal', $validated['month'])
             ->update([
                 'karyawan_id'   => $validated['target_karyawan_id'],
-                'nama_karyawan' => Karyawan::find($validated['target_karyawan_id'])->nama,
+                'nama_karyawan' => $namaBaru,
             ]);
     });
 
-    // ⬇︎ Redirect ke halaman imported karyawan TUJUAN
     return redirect()->route('absensi.imported', [
         'karyawan' => $validated['target_karyawan_id'],
         'month'    => $validated['month'],
         'year'     => $validated['year'],
     ])->with('success', 'Data absensi berhasil dipindahkan.');
 }
+
 
 public function showEditForm(Request $request, $karyawanId)
 {

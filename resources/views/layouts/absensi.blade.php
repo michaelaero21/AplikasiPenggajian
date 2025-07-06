@@ -65,71 +65,32 @@
             .sidebar.show { transform: translateX(0); }
             .sidebar a { text-align: center; }
         }
-    </style>
-    <style>
-     html, body {
-        height: 100%;
-        margin: 0;
-        }
 
-    .wrapper {
-        display: flex;
-        height: 100vh;
-        }
 
-    .main {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        min-height: 100vh;
-        background: #f0f0f0;
-        }
-
-    .content {
-        flex-grow: 1;
-        padding: 20px;
-        }
-
-    .footer-custom {
-        background: linear-gradient(135deg, var(--brand-start, #0d47a1), var(--brand-end, #1976d2));
-        color: #fff;
-        padding: 14px 20px;
-        display: flex;
-        justify-content: center;
-
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 14px;
-        font-weight: 500;
-        
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-        }
-
-    .logo-footer {
-        width: 40px;
-        height: auto;
-        object-fit: contain;
-        }
-
-    @media (max-width: 768px) {
-        .wrapper {
-            flex-direction: column;
-        }
-
-        .sidebar {
-            width: 100%;
-            height: auto;
-        }
-
-        .main {
-            margin-left: 0;
-        }
-
+        /* footer selalu diam di bawah layar dan tak terpengaruh scroll horizontal */
         .footer-custom {
-            flex-wrap: wrap;
-            text-align: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg,#0d47a1,#1976d2);
+            color:#fff;
+            padding:14px 20px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            gap:.5rem;
+            font-size:14px;
+            font-weight:500;
+            box-shadow:0 -4px 20px rgba(0,0,0,.1);
+            z-index:10;
         }
-    }
+
+        .logo-footer{
+            width:40px;
+            height:auto;
+            object-fit:contain;
+        }
 
     </style>
 </head>
@@ -171,19 +132,16 @@
             </form>
         </div>
     </div>
-   <main class="main">
-    <section class="content">
-      @yield('content')
-    </section>
-
-    <footer class="footer-custom">
-      <img src="{{ asset('images/logo.png') }}" alt="Logo" class="logo-footer" />
-      <span>&copy; {{ date('Y') }} CV Arindra Mandiri. All rights reserved.</span>
+    <div class="content">
+        @yield('content')
+    </div>
+    
+</div>
+<footer class="footer-custom">
+        <img src="{{ asset('images/logo.png') }}" class="logo-footer" />
+        <span>&copy; {{ date('Y') }} CV Arindra Mandiri. All rights reserved.</span>
     </footer>
-  </main>
-</div>
-</div>
-
+    
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
     function confirmLogout() {
     if (confirm('Apakah kamu yakin ingin keluar?')) {
@@ -191,5 +149,6 @@
     }
     }
 </script>
+
 </body>
 </html>

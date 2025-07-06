@@ -3,6 +3,7 @@
 @section('title', 'Daftar Absensi Karyawan')
 
 @section('content')
+
 <div class="table-container">
     <h3 class="mb-4">Daftar Absensi Karyawan</h3>
 

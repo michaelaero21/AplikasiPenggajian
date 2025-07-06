@@ -194,6 +194,16 @@ public function generateSlipFromIndex(Request $request)
 
     $kategori = strtolower($kategori ?: $gaji->kategori_gaji);
     $range = $this->getRangeFromPeriode($periode, $kategori);
+    $adaAbsensi = Absensi::where('karyawan_id', $karyawan->id)
+        ->whereBetween('tanggal', $range)   // seluruh status, tidak hanya “hadir”
+        ->exists();
+
+    if (!$adaAbsensi) {
+        throw new \Exception(
+            "Tidak bisa membuat slip—belum ada data absensi untuk "
+            . "{$karyawan->nama} pada periode {$periode} ({$kategori})."
+        );
+    }
     $isBulanan = $kategori === 'bulanan';
     $isMingguan = $kategori === 'mingguan';
 

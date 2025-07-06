@@ -1,45 +1,55 @@
 <?php use Carbon\Carbon; ?>
-<form method="GET" class="mb-3" id="filterForm">
-     <div class="row g-2 align-items-end mb-3">
-        {{-- Cari nama --}}
-        <div class="col-md-3">
-            <label for="search-input" class="form-label mb-2">Cari Nama Karyawan</label>
+<form method="GET" class="mb-4" id="filterForm">
+
+    {{-- ── Deret 1: Cari nama + kategori ── --}}
+    <div class="row g-3 align-items-end">
+        {{-- Cari nama karyawan --}}
+        <div class="col-md-6 col-lg-4">
+            <label for="search-input" class="form-label">Cari Nama Karyawan</label>
             <input  type="text"
                     name="search"
-                    id="search-input"         
+                    id="search-input"
                     class="form-control"
                     placeholder="Nama karyawan…"
                     value="{{ request('search') }}">
         </div>
 
-
-        {{-- Dropdown kategori --}}
-        <div class="col-md-3">
-            <label class="form-label d-block mb-2">Pilih Tipe Kategori Gaji:</label>
+        {{-- Pilih tipe kategori gaji --}}
+        <div class="col-md-6 col-lg-4">
+            <label for="kategoriSelect" class="form-label">Pilih Tipe Kategori Gaji</label>
             <select name="kategori" id="kategoriSelect" class="form-select">
-                <option value="semua"           {{ $kategori === null          ? 'selected' : '' }}>Semua</option>
-                <option value="mingguan"   {{ $kategori === 'mingguan'    ? 'selected' : '' }}>Mingguan</option>
-                <option value="bulanan"    {{ $kategori === 'bulanan'     ? 'selected' : '' }}>Bulanan</option>
+                <option value="semua"    {{ $kategori === null         ? 'selected' : '' }}>Semua</option>
+                <option value="mingguan" {{ $kategori === 'mingguan'   ? 'selected' : '' }}>Mingguan</option>
+                <option value="bulanan"  {{ $kategori === 'bulanan'    ? 'selected' : '' }}>Bulanan</option>
             </select>
         </div>
+    </div>
 
-        {{-- RANGE TANGGAL (selalu tampil & bisa custom) --}}
-        <div class="col-md-3">
-            <label class="form-label d-block mb-2">Dari Tanggal:</label>
-            <input  type="date" name="start_date" id="start_date"
-                    class="form-control"
-                    value="{{ $start->format('Y-m-d') }}">
-        </div>
-        <div class="col-md-3">
-            <label class="form-label d-block mb-2">Sampai Tanggal:</label>
-            <input  type="date" name="end_date" id="end_date"
-                    class="form-control"
-                    value="{{ $end->format('Y-m-d') }}">
+    {{-- ── Deret 2: Range tanggal + tombol ── --}}
+    <div class="row g-3 align-items-end mt-0">
+        {{-- Dari tanggal --}}
+        <div class="col-md-4 col-lg-3">
+            <label for="start_date" class="form-label">Dari Tanggal</label>
+            <input type="date"
+                   name="start_date"
+                   id="start_date"
+                   class="form-control"
+                   value="{{ $start->format('Y-m-d') }}">
         </div>
 
-        {{-- Tombol Tampilkan --}}
-        <div class="col-md-3">
-            <label class="form-label d-block mb-2">Aksi</label>
+        {{-- Sampai tanggal --}}
+        <div class="col-md-4 col-lg-3">
+            <label for="end_date" class="form-label">Sampai Tanggal</label>
+            <input type="date"
+                   name="end_date"
+                   id="end_date"
+                   class="form-control"
+                   value="{{ $end->format('Y-m-d') }}">
+        </div>
+
+        {{-- Tombol aksi --}}
+        <div class="col-md-4 col-lg-3">
+            <label class="form-label d-block">&nbsp;</label>
             <button type="submit" class="btn btn-primary w-100">Tampilkan</button>
         </div>
     </div>

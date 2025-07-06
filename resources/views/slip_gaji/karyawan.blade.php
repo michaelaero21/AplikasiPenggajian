@@ -83,7 +83,7 @@
                         <td>Rp{{ number_format($slip->total_dibayar, 0, ',', '.') }}</td>
                         <td>
                             <a href="{{ route('slip-gaji.karyawan.preview', $slip->id) }}"
-                               class="btn btn-sm btn-secondary" target="_blank">Preview</a>
+                               class="btn btn-sm btn-secondary" target="_blank">Lihat Slip</a>
                             <a href="{{ route('slip-gaji.karyawan.download', $slip->id) }}"
                                class="btn btn-sm btn-primary">Download</a>
                         </td>

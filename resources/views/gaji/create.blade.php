@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <div class="card shadow">
         <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Tambah Gaji Karyawan</h5>
+            <h5 class="mb-0">Tambah Data Gaji Karyawan</h5>
         </div>
         <div class="form-create-gaji p-4">
             <!-- Menampilkan Error Global -->
