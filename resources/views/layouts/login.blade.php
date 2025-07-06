@@ -50,7 +50,7 @@
 
                 <!-- Konten form -->
                 @yield('content')
-
+                <br><span>&copy; {{ date('Y') }} CV Arindra Mandiri. All rights reserved.</span>
             </div>
         </div>
     </div>
