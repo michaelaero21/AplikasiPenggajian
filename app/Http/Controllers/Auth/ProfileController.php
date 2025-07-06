@@ -18,8 +18,8 @@ class ProfileController extends Controller
     }
     public function editKaryawan()
     {
-        $user = Auth::user();
-        return view('profile.karyawan-edit');
+        $user = Auth::user()->load('karyawan');
+        return view('profile.karyawan-edit', compact('user'));
     }
 
 
@@ -118,8 +118,8 @@ class ProfileController extends Controller
     }
      public function showKaryawan()
     {
-        $user = Auth::user();
-        return view('profile.karyawan-account-info'); // Ganti sesuai lokasi file view info akun
+        $user = Auth::user()->load('karyawan');
+        return view('profile.karyawan-account-info', compact('user')); // Ganti sesuai lokasi file view info akun
     }
      public function updateKaryawan(Request $request)
     {

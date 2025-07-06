@@ -6,6 +6,8 @@
 @section('content')
 @php
     $user = Auth::user();
+    $jabatan = optional($user->karyawan)->jabatan ?? 'Belum ditentukan';
+
     /**
     * Format nomor telepon menjadi xxxx-xxxx-xxxx.
     * - Jika argumen null/kosong → “Tidak ada data”.
@@ -31,13 +33,6 @@
         if ($len <= 8)   return preg_replace('/(\d{4})(\d+)/', '$1-$2', $digits);
         /* len ≥ 9 */    return preg_replace('/(\d{4})(\d{4})(\d+)/', '$1-$2-$3', $digits);
     }
-
-    $jabatan = match($user->role) {
-        'admin' => 'Administrator',
-        'staff' => 'Staf HR',
-        'manager' => 'Manajer',
-        default => 'Tidak diketahui'
-    };
 @endphp
 
 <div class="text-center mb-4">
@@ -73,7 +68,7 @@
     </li>
     <li class="list-group-item d-flex justify-content-between align-items-center">
         <strong>Jabatan</strong>
-        <span>{{ $user->role ?? 'Belum ditentukan' }}</span>
+        <span>{{ $jabatan }}</span>
     </li>
     <li class="list-group-item d-flex justify-content-between align-items-center">
         <strong>Tanggal Bergabung</strong>
