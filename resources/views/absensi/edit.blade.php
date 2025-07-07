@@ -61,8 +61,7 @@
 
         <button type="submit"
                 id="moveButton"
-                class="btn btn-warning mt-3"
-                onclick="disableMoveBtn()">
+                class="btn btn-warning mt-3">
             Pindahkan Absensi
         </button>
     </form>
@@ -79,13 +78,3 @@
     .izin {background:#dc3545}
 </style>
 @endpush
-
-@section('scripts')
-<script>
-function disableMoveBtn() {
-    const btn = document.getElementById('moveButton');
-    btn.disabled = true;
-    btn.innerText = 'Memindahkan...';
-}
-</script>
-@endsection

@@ -596,6 +596,7 @@ protected function generateSlipMingguan(Karyawan $karyawan, string $periode): Sl
 
         // Buat URL WhatsApp
         $linkWA = "https://wa.me/{$nomor}?text=" . urlencode($pesan . "\n\nDownload Slip Gaji: $urlPdf");
+        $slipGaji->update(['status_kirim' => 'terkirim']);
 
         return redirect($linkWA);
     }
@@ -765,6 +766,7 @@ public function downloadMassal(Request $request)
             'link' => "https://wa.me/{$nomor}?text=".
                       urlencode($pesan."\n\nDownload Slip Gaji: $urlPdf")
         ];
+        $slip->update(['status_kirim' => 'terkirim']);
     }
 
     /* 4 ▸ jika tak ada link valid */

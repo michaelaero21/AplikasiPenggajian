@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Karyawan;
+use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
 {
@@ -28,17 +29,27 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         // Validasi input, semua field opsional kecuali jika diisi
-        $request->validate([
-            'name' => 'nullable|string|max:255',
+        $rules = [
+            'name'          => 'nullable|string|max:255',
             'profile_photo' => 'nullable|image|mimes:jpeg,png|max:2048',
-            'email' => 'nullable|email|max:255|unique:users,email,' . $user->id,
-            'alamat'            => 'nullable|string|max:65535',          // TEXT
-            'nomor_telepon'     => 'nullable|string|max:20',  
-            'current_password' => 'nullable|required_with:new_password|current_password',
-            'new_password' => 'nullable|min:8|confirmed',
-            'remove_profile_photo' => 'nullable|boolean', 
-        ]);
+            'email'         => 'nullable|email|max:255|unique:users,email,' . $user->id,
+            'alamat'        => 'nullable|string|max:65535',
+            'nomor_telepon' => 'nullable|string|max:20',
 
+            'current_password'          => 'nullable|required_with:new_password|current_password',
+            'new_password'              => 'nullable|required_with:current_password|min:8|confirmed',
+            'new_password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+
+            'remove_profile_photo' => 'nullable|boolean',
+        ];
+
+        $messages = [
+            'current_password.current_password' => 'Password lama salah.',
+            'new_password.min'                  => 'Password baru minimal 8 karakter.',
+            'new_password.confirmed'            => 'Konfirmasi password baru tidak sama.',
+            'new_password_confirmation.same'    => 'Konfirmasi password baru tidak sama.',
+        ];
+        $request->validate($rules, $messages);
         $changedData = [];
 
         // Update nama jika diisi dan berbeda
@@ -101,16 +112,12 @@ class ProfileController extends Controller
 
 
         // Simpan jika ada perubahan
-        if (!empty($changedData)) {
-            $user->save();
+        if ($changed) $user->save();
+
+        return back()->with('success', $changed
+            ? 'Perubahan: '.implode(', ', $changed)
+            : 'Tidak ada perubahan.');
         }
-
-        $message = empty($changedData)
-            ? 'Tidak ada perubahan yang dilakukan.'
-            : 'Perubahan berikut telah dilakukan: ' . implode(', ', $changedData) . '.';
-
-        return back()->with('success', $message);
-    }
 
     public function show()
     {
@@ -127,17 +134,27 @@ class ProfileController extends Controller
         $karyawan = $user->karyawan; // pastikan ada relasi hasOne di model User
 
         // ─────── VALIDASI ─────────────────────────────────────
-        $request->validate([
-            'name'              => 'nullable|string|max:255',
-            'profile_photo'     => 'nullable|image|mimes:jpeg,png|max:2048',
-            'email'             => 'nullable|email|max:255|unique:users,email,' . $user->id,
-            'alamat'            => 'nullable|string|max:65535',
-            'nomor_telepon'     => 'nullable|string|max:20',
-            'current_password'  => 'nullable|required_with:new_password|current_password',
-            'new_password'      => 'nullable|min:8|confirmed',
-            'remove_profile_photo' => 'nullable|boolean',
-        ]);
+        $rules = [
+            'name'          => 'nullable|string|max:255',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png|max:2048',
+            'email'         => 'nullable|email|max:255|unique:users,email,' . $user->id,
+            'alamat'        => 'nullable|string|max:65535',
+            'nomor_telepon' => 'nullable|string|max:20',
 
+            'current_password'          => 'nullable|required_with:new_password|current_password',
+            'new_password'              => 'nullable|required_with:current_password|min:8|confirmed',
+            'new_password_confirmation' => 'nullable|required_with:new_password|same:new_password',
+
+            'remove_profile_photo' => 'nullable|boolean',
+        ];
+
+        $messages = [
+            'current_password.current_password' => 'Password lama salah.',
+            'new_password.min'                  => 'Password baru minimal 8 karakter.',
+            'new_password.confirmed'            => 'Konfirmasi password baru tidak sama.',
+            'new_password_confirmation.same'    => 'Konfirmasi password baru tidak sama.',
+        ];
+        $request->validate($rules, $messages);
         $changedData = [];
 
         // ─────── UPDATE NAMA ──────────────────────────────────
@@ -199,17 +216,10 @@ class ProfileController extends Controller
         }
 
         // ─────── SIMPAN PERUBAHAN ────────────────────────────
-        if (!empty($changedData)) {
-            $user->save();
-            if ($karyawan && $karyawan->isDirty()) {
-                $karyawan->save();
-            }
+        if ($changed) $user->save();
+
+        return back()->with('success', $changed
+            ? 'Perubahan: '.implode(', ', $changed)
+            : 'Tidak ada perubahan.');
         }
-
-        $message = empty($changedData)
-            ? 'Tidak ada perubahan yang dilakukan.'
-            : 'Perubahan berikut telah dilakukan: ' . implode(', ', $changedData) . '.';
-
-        return back()->with('success', $message);
-    }
 }

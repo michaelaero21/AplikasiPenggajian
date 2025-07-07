@@ -84,17 +84,8 @@
             </table>
         </div>
 
-        <button type="submit" id="importButton" class="btn btn-success mt-3" onclick="disableButton()">Import Data</button>
+        <button type="submit" id="importButton" class="btn btn-success mt-3">Import Data</button>
     </form>
 </div>
+@endsection
 
-@section('scripts')
-<script>
-    function disableButton() {
-        const button = document.getElementById('importButton');
-        button.disabled = true;
-        button.innerText = 'Sedang Mengimpor...';
-    }
-</script>
-@endsection
-@endsection

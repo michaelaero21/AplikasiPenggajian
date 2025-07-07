@@ -30,6 +30,7 @@ class SlipGaji extends Model
         'gaji_pokok',
         'total_dibayar',
         'file_pdf',
+        'status_kirim',
     ];
 
     public function karyawan()

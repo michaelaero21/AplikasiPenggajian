@@ -134,6 +134,7 @@
     </div>
     <div class="content">
         @yield('content')
+       
     </div>
     
 </div>
@@ -141,7 +142,7 @@
         <img src="{{ asset('images/logo.png') }}" class="logo-footer" />
         <span>&copy; {{ date('Y') }} CV Arindra Mandiri. All rights reserved.</span>
     </footer>
-    
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
     function confirmLogout() {
     if (confirm('Apakah kamu yakin ingin keluar?')) {
@@ -149,6 +150,6 @@
     }
     }
 </script>
-
+@stack('scripts')
 </body>
 </html>

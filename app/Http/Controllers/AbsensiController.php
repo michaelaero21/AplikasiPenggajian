@@ -184,6 +184,7 @@ class AbsensiController extends Controller
             $dates2 = $rows[10] ?? [];
             $in2 = $rows[11] ?? [];
             $out2 = $rows[12] ?? [];
+            $attendanceCount = 0;
 
             foreach ([$dates1, $dates2] as $idx => $dates) {
                 $ins = ${'in' . ($idx + 1)};
@@ -213,8 +214,12 @@ class AbsensiController extends Controller
                             'status' => $status,
                         ]
                     );
+                    $attendanceCount++;  
                 }
             }
+             if ($attendanceCount === 0) {
+            throw new \Exception('File Excel tidak mengandung data absensi.');
+        }
 
             DB::commit();
 

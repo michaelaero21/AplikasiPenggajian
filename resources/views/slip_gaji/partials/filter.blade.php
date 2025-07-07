@@ -11,7 +11,10 @@
                     id="search-input"
                     class="form-control"
                     placeholder="Nama karyawan…"
-                    value="{{ request('search') }}">
+                    value="{{ request('search') }}"
+                    pattern="[A-Za-z\s]*" 
+                    inputmode="text" 
+                    oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '');">
         </div>
 
         {{-- Pilih tipe kategori gaji --}}
@@ -61,13 +64,12 @@ document.getElementById('search-input')
         .addEventListener('input', debounce(searchTable, 300));
 
 function searchTable() {
-    const keyword = document
-                    .getElementById('search-input')
-                    .value
-                    .toLowerCase();
+    const keyword = document.getElementById('search-input').value.toLowerCase();
+
+    // stop kalau ada karakter non‑huruf
+    if (/[^a-z\s]/.test(keyword)) return;
 
     const rows = document.querySelectorAll('#karyawan-table tbody tr');
-
     rows.forEach(row => {
         const cells = Array.from(row.querySelectorAll('td'));
         const match = cells.some(td =>
