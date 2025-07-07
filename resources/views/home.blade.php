@@ -54,7 +54,11 @@
                 </div>
             @endif
 
-            <div class="info" style="font-size: 1.2rem; font-weight: bold; color: white; background-color: #1c1c1c; padding: 6px 12px; border-radius: 5px; margin-top: 10px; text-align: center;">Info ➔</div>
+           <a href="{{ route('gaji.index') }}"
+            class="info"
+            style="font-size:1.2rem;font-weight:bold;color:white;background:#1c1c1c;padding:6px 12px;border-radius:5px;margin-top:10px;text-align:center;display:block;text-decoration:none;">
+                Info ➔
+            </a>
         </div>
     </div>
 

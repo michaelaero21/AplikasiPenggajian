@@ -84,8 +84,8 @@
                         <td>
                             <a href="{{ route('slip-gaji.karyawan.preview', $slip->id) }}"
                                class="btn btn-sm btn-secondary" target="_blank">Lihat Slip</a>
-                            <a href="{{ route('slip-gaji.karyawan.download', $slip->id) }}"
-                               class="btn btn-sm btn-primary">Download</a>
+                            <!-- <a href="{{ route('slip-gaji.karyawan.download', $slip->id) }}"
+                               class="btn btn-sm btn-primary">Download</a> -->
                         </td>
                     </tr>
                 @endforeach
