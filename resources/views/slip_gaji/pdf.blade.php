@@ -28,11 +28,17 @@
             border-top: 1px solid #000;
             margin-top: 30px;
         }
+        .logo     { 
+            width: 70px; 
+            height: auto; 
+            margin-bottom: 4px; 
+        }
     </style>
 </head>
 <body>
 
     <div class="center">
+        <img src="{{ public_path('images/logo.png') }}" class="logo" style="width:70px; margin-bottom:4px">
         <div style="font-size: 14px;">CV. ARINDRA MANDIRI</div>
         <div style="font-size: 13px;">PALEMBANG</div>
         <div style="color: blue;">SLIP GAJI KARYAWAN</div>
