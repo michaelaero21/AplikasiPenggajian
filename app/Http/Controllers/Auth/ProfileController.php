@@ -112,10 +112,10 @@ class ProfileController extends Controller
 
 
         // Simpan jika ada perubahan
-        if ($changed) $user->save();
+        if ($changedData) $user->save();
 
-        return back()->with('success', $changed
-            ? 'Perubahan: '.implode(', ', $changed)
+        return back()->with('success', $changedData
+            ? 'Perubahan: '.implode(', ', $changedData)
             : 'Tidak ada perubahan.');
         }
 
@@ -216,10 +216,10 @@ class ProfileController extends Controller
         }
 
         // ─────── SIMPAN PERUBAHAN ────────────────────────────
-        if ($changed) $user->save();
+        if ($changedData) $user->save();
 
-        return back()->with('success', $changed
-            ? 'Perubahan: '.implode(', ', $changed)
+        return back()->with('success', $changedData
+            ? 'Perubahan: '.implode(', ', $changedData)
             : 'Tidak ada perubahan.');
         }
 }
