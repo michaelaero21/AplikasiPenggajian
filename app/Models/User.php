@@ -74,9 +74,18 @@ class User extends Authenticatable
         return $this->hasOne(Karyawan::class);
     }
     public function slipGajis()
-{
-    return $this->hasMany(SlipGaji::class, 'karyawan_id');
-}
+    {
+        return $this->hasMany(SlipGaji::class, 'karyawan_id');
+    }
+    public function getAlamatAttribute($value)
+    {
+        return $value ?: null;      // ubah string kosong jadi null
+    }
+    public function getNomorTeleponAttribute($val)
+    {
+        return blank($val) ? null : $val;   // string kosong → null
+    }
+
 
 
 }

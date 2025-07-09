@@ -139,6 +139,8 @@ class KaryawanController extends Controller
             /* 3. Update tabel users */
             $user = $karyawan->user;
             if ($user) {
+                $prevStatus = $user->status;                 // status sebelum update
+                $newStatus  = $request->status;
                 $roleBaru = ($request->jabatan === 'Admin') ? 'Admin' : 'Karyawan';
 
                 $userUpdate = [
@@ -146,16 +148,19 @@ class KaryawanController extends Controller
                     'alamat'        => $request->alamat_karyawan,
                     'nomor_telepon' => $request->nomor_telepon,
                     'role'          => $roleBaru,
-                    'status'        => $request->status,
+                    'status'        => $newStatus,
                 ];
 
-                if ($request->status === 'Nonaktif') {
+                /* Transisi status ───────────────────────────────────────── */
+                if ($prevStatus === 'Aktif' && $newStatus === 'Nonaktif') {
+                    // Baru dinonaktifkan
                     $userUpdate['waktu_dinonaktifkan'] = now();
-                } else {
-                    $userUpdate['waktu_diaktifkan'] = now();
-                    $userUpdate['waktu_dinonaktifkan'] = null;
+                    $userUpdate['waktu_diaktifkan']     = null;
+                } elseif ($prevStatus === 'Nonaktif' && $newStatus === 'Aktif') {
+                    // Baru diaktifkan kembali
+                    $userUpdate['waktu_diaktifkan']     = now();
+                    $userUpdate['waktu_dinonaktifkan']  = null;
                 }
-
                 $user->update($userUpdate);
             }
         });

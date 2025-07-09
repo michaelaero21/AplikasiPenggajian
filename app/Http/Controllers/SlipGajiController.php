@@ -102,7 +102,18 @@ public function index(Request $request)
 
     // Ambil slip yang memang sudah dibuat (bisa → get() / paginate())
     $slips = $slipQuery->latest('periode')->get();   // ===== NEW =====
+    // 8. Bangun daftar Senin dalam range (khusus kategori mingguan)
+    $weekStarts = collect();
 
+    if ($kategoriFilter === 'mingguan' && $startDate && $endDate) {
+        $firstMonday = Carbon::parse($startDate)->startOfWeek(Carbon::MONDAY);
+        $lastMonday  = Carbon::parse($endDate)->startOfWeek(Carbon::MONDAY);
+
+        while ($firstMonday->lte($lastMonday)) {
+            $weekStarts->push($firstMonday->toDateString());
+            $firstMonday->addWeek();
+        }
+    }
     /* -------- 7. Kirim ke view -------- */
     return view('slip_gaji.index', compact(
         'karyawans',
@@ -113,7 +124,8 @@ public function index(Request $request)
         'startDate',
         'endDate',
         'rangeTanggal',
-        'slips'              // ===== NEW =====
+        'slips',
+        'weekStarts',              // ===== NEW =====
     ));
 }
 
@@ -660,7 +672,11 @@ protected function generateSlipMingguan(Karyawan $karyawan, string $periode): Sl
 
         /* === B. Generate slip untuk setiap periode === */
         foreach ($periodeList as $p) {
-            $this->generateSlip($karyawan, $p, $kategoriFinal);
+            if ($kategoriFinal === 'mingguan') {
+                $this->generateSlipMingguan($karyawan, $p);
+            } else {
+                $this->generateSlip($karyawan, $p);   // asumsi sudah ada method ini
+            }
         }
 
         $generated[] = $karyawan->nama;
@@ -671,6 +687,28 @@ protected function generateSlipMingguan(Karyawan $karyawan, string $periode): Sl
         'success',
         'Slip gaji berhasil digenerate untuk: ' . implode(', ', $generated)
     );
+}
+protected function buildPeriodList(string $start, string $end, string $kategori): array
+{
+    $list = [];
+    $startC = Carbon::parse($start);
+    $endC   = Carbon::parse($end);
+
+    if ($kategori === 'bulanan') {
+        $startC->startOfMonth();
+        while ($startC->lte($endC)) {
+            $list[] = $startC->format('Y-m');
+            $startC->addMonth();
+        }
+    } else {                           // mingguan
+        $startC->startOfWeek(Carbon::MONDAY);   // selalu Senin
+        $endC  ->startOfWeek(Carbon::MONDAY);
+        while ($startC->lte($endC)) {
+            $list[] = $startC->toDateString();  // 2025‑06‑02
+            $startC->addWeek();
+        }
+    }
+    return $list;
 }
 
    /**
@@ -1117,6 +1155,59 @@ public function showSlipAll(Request $request)
         'tipe'
     ));
 }
+public function hapus(SlipGaji $slipGaji)
+{
+    // Hapus file PDF di penyimpanan
+    if ($slipGaji->file_pdf) {
+        $relativePath = str_replace('storage/', '', $slipGaji->file_pdf);
+        Storage::disk('public')->delete($relativePath);
+    }
+
+    // Hapus data slip gaji dari database
+    $nama = $slipGaji->karyawan->nama ?? 'Karyawan';
+    $periode = $slipGaji->periode;
+    $kategori = $slipGaji->kategori_gaji;
+
+    $slipGaji->delete(); // <-- Menghapus data dari database
+
+    return back()->with('success', "Slip gaji {$nama} periode {$periode} ({$kategori}) berhasil dihapus.");
+}
+public function hapusMassal(Request $request)
+{
+    $ids = $request->input('slip_ids');
+    if (is_string($ids)) {
+        $ids = array_filter(explode(',', $ids));
+        $request->merge(['slip_ids' => $ids]);
+    }
+
+    $request->validate([
+        'slip_ids' => 'required|array|min:1',
+        'slip_ids.*' => 'integer|exists:slip_gajis,id',
+    ]);
+
+    $deleted = [];
+
+    foreach ($request->slip_ids as $id) {
+        $slip = SlipGaji::find($id);
+        if (!$slip) continue;
+
+        // Hapus file jika ada
+        if ($slip->file_pdf) {
+            $relativePath = str_replace('storage/', '', $slip->file_pdf);
+            Storage::disk('public')->delete($relativePath);
+        }
+
+        $deleted[] = $slip->karyawan->nama ?? 'Karyawan';
+        $slip->delete(); // <-- Hapus data dari database
+    }
+
+    if (empty($deleted)) {
+        return back()->with('error', 'Tidak ada slip gaji yang berhasil dihapus.');
+    }
+
+    return back()->with('success', 'Slip gaji berhasil dihapus untuk: ' . implode(', ', $deleted));
+}
+
 
     
 }

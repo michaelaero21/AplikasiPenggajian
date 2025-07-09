@@ -12,7 +12,8 @@
 
       <!-- Search bar tetap sendiri di baris atas -->
     <div class="d-flex justify-content-start align-items-center mb-3">
-        <input type="text" id="search-input" class="form-control w-50" placeholder="Cari Karyawan...">
+        <input type="text" id="search-input" class="form-control w-50" placeholder="Cari Karyawan..." pattern="[A-Za-z\s]*"
+        oninput="this.value = this.value.replace(/[^A-Za-z\s]/g,'');">
     </div>
 
     <!-- Baris tombol filter kategori dan tombol aksi sejajar -->

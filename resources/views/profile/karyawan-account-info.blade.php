@@ -64,7 +64,7 @@
     </li>
     <li class="list-group-item d-flex justify-content-between align-items-center">
         <strong>Nomor Telepon</strong>
-        <span>{{ formatPhone($user->nomor_telepon ?? 'Tidak ada data') }}</span>
+        <span>{{ $user->nomor_telepon ? formatPhone($user->nomor_telepon) : 'Tidak ada data' }}</span>
     </li>
     <li class="list-group-item d-flex justify-content-between align-items-center">
         <strong>Jabatan</strong>

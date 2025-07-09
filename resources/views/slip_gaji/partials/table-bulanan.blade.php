@@ -49,6 +49,15 @@
                 <button class="dropdown-item" type="submit">Kirim WA</button>
               </form>
             </li>
+            <!-- AKSI HAPUS MASSAL SLIP GAJI (FILE PDF DAN DATABASE) -->
+            <!-- <li>
+            <form id="bulk-hapus" action="{{ route('slip-gaji.hapus_massal') }}" method="POST" 
+             onsubmit="return confirm('Yakin ingin menghapus semua slip yang dipilih?')">
+                @csrf
+                <input type="hidden" name="slip_ids" value="">
+                <button type="submit" class="btn btn-danger">Hapus</button>
+            </form>
+            </li> -->
         </ul>
     </div>
 </div>
@@ -124,6 +133,12 @@
                                 @csrf
                                 <button class="btn btn-sm btn-success" type="submit">Kirim WA</button>
                             </form>
+                            <!-- BUTTON HAPUS (FILE PDF DAN DATABASE)-->
+                            <!-- <form action="{{ route('slip-gaji.hapus', $slip->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus slip ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                            </form> -->
                         @else
                         <div class="d-grid gap-2">
                             <form action="{{ route('slip-gaji.generate') }}" method="POST" class="m-0">
@@ -164,12 +179,30 @@
 {{-- ===== skrip Select-All (mirip video) ===== --}}
 @push('scripts')
 <script>
+    function bulkFormGuard(){
+    // Semua form yg ada di #bulk-toolbar
+    document.querySelectorAll('#bulk-toolbar form').forEach(form => {
+        form.addEventListener('submit', e => {
+            // Cek input hidden mana pun
+            const selected = form.querySelector('input[name="selected"]')?.value || '';
+            const slipIds  = form.querySelector('input[name="slip_ids"]')?.value || '';
+
+            // Jika dua‑duanya kosong ⇒ tidak ada pilihan
+            if(selected === '' && slipIds === ''){
+                e.preventDefault();                       // batalkan submit
+                // --- ganti alert() dgn SweetAlert2 jika mau lebih cantik ---
+                alert('Pilih setidaknya satu karyawan / slip terlebih dahulu!');
+            }
+        });
+    });
+}
 document.addEventListener('DOMContentLoaded', () => {
     const master      = document.getElementById('master');
     const subs        = Array.from(document.querySelectorAll('.sub_chk'));
     const toolbar     = document.getElementById('bulk-toolbar');
     const breakdownEl = document.getElementById('bulk-breakdown');
     const countEl     = document.getElementById('bulk-count').firstElementChild;
+    bulkFormGuard();
 
     const setFormIds = (selector, name, ids) => {
         const input = document.querySelector(`${selector} input[name="${name}"]`);
@@ -199,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setFormIds('#bulk-thr',      'selected', karyawanIds);
         setFormIds('#bulk-download', 'slip_ids', slipIds);
         setFormIds('#bulk-wa',       'slip_ids', slipIds);
+        setFormIds('#bulk-hapus',       'slip_ids', slipIds);
     };
 
     // master checkbox

@@ -78,12 +78,11 @@ Route::middleware(['auth','check.active','role:admin'])->group(function () {
         Route::post('/kirim-wa-massal', 'kirimMassal')->name('kirim_wa_massal');
         Route::post('/thr/set', 'setThrFlag')->name('setThrFlag');
         Route::post('set-thr-flag-massal', [SlipGajiController::class, 'setThrFlagMassal'])
-         ->name('setThrFlagMassal');
-        Route::get('/slip-gaji/table-all', [SlipGajiController::class, 'tableAll'])
-     ->name('slip-gaji.table-all');
-
-
-
+            ->name('setThrFlagMassal');
+            Route::get('/slip-gaji/table-all', [SlipGajiController::class, 'tableAll'])
+        ->name('slip-gaji.table-all');
+        Route::delete('/hapus/{slipGaji}', 'hapus')->name('hapus');
+        Route::post('/hapus-massal', 'hapusMassal')->name('hapus_massal');
     });
 
     // Laporan

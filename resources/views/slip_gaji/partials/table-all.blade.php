@@ -106,6 +106,12 @@
               @csrf
               <button class="btn btn-sm btn-success">Kirim&nbsp;WA</button>
             </form>
+            <!-- BUTTON HAPUS (FILE PDF DAN DATABASE)-->
+            <!-- <form action="{{ route('slip-gaji.hapus', $slip->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus slip ini?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+            </form> -->
           @else
             <span class="text-muted">—</span>
           @endif

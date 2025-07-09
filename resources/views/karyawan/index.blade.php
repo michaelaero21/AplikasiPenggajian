@@ -22,7 +22,8 @@
 
 <!-- Pencarian dan Tambah Karyawan -->
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <input type="text" id="search-input" class="form-control w-50 me-2" placeholder="Cari Karyawan...">
+    <input type="text" id="search-input" class="form-control w-50 me-2" placeholder="Cari Karyawan..." pattern="[A-Za-z\s]*"
+        oninput="this.value = this.value.replace(/[^A-Za-z\s]/g,'');">
 
     @if(auth()->user()->role !== 'Karyawan')
         <a href="{{ route('karyawan.create') }}" class="btn btn-success">Tambah Karyawan</a>

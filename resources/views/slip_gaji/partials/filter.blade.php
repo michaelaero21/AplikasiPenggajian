@@ -59,32 +59,49 @@
 </form>
 @push('scripts')
 <script>
-/* ====== LIVE SEARCH DENGAN DEBOUNCE ====== */
+/* ====== LIVE SEARCH (debounce 300 ms) ====== */
 document.getElementById('search-input')
         .addEventListener('input', debounce(searchTable, 300));
 
 function searchTable() {
-    const keyword = document.getElementById('search-input').value.toLowerCase();
+    const kw = document.getElementById('search-input').value.toLowerCase();
 
-    // stop kalau ada karakter non‑huruf
-    if (/[^a-z\s]/.test(keyword)) return;
+    /* stop kalau ada karakter selain huruf & spasi */
+    if (/[^a-z\s]/.test(kw)) return;
 
-    const rows = document.querySelectorAll('#karyawan-table tbody tr');
+    /* ▼ hanya pilih baris LEVEL UTAMA:   #karyawan-table > tbody > tr
+       Ini melewatkan semua <tr> di tabel nested (detail).            */
+    const rows = document.querySelectorAll('#karyawan-table > tbody > tr');
+
     rows.forEach(row => {
-        const cells = Array.from(row.querySelectorAll('td'));
-        const match = cells.some(td =>
-            td.innerText.toLowerCase().includes(keyword)
-        );
+
+        /* Jika baris ini DETAIL (class detail‑row) → selalu hide saat searching
+           agar tidak tercecer; header di dalam nested table tidak disentuh,
+           karena baris header berada di <tbody> nested.                */
+        if (row.classList.contains('detail-row')){
+            row.style.display = 'none';
+            return;
+        }
+
+        /* Baris MAIN: cek kecocokan kata kunci */
+        const match = row.innerText.toLowerCase().includes(kw);
         row.style.display = match ? '' : 'none';
+
+        /* Sembunyikan detail‑row pasangannya ketika baris main di‑hide */
+        const id = row.dataset.id;                       // pastikan baris main punya data-id
+        if (id) {
+            const detail = document.getElementById('detail-' + id);
+            if (detail) detail.style.display = 'none';
+        }
     });
 }
 
 /* util: debounce */
-function debounce(fn, delay) {
-    let timer;
-    return function () {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn.apply(this, arguments), delay);
+function debounce(fn, delay){
+    let t;
+    return function(){
+        clearTimeout(t);
+        t = setTimeout(()=>fn.apply(this, arguments), delay);
     };
 }
 

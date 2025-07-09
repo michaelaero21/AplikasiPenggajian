@@ -57,7 +57,8 @@
 
     <!-- Pencarian -->
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <input type="text" id="search-input" class="form-control w-50 me-2" placeholder="Cari Absensi Karyawan...">
+        <input type="text" id="search-input" class="form-control w-50 me-2" placeholder="Cari Absensi Karyawan..." pattern="[A-Za-z\s]*"
+        oninput="this.value = this.value.replace(/[^A-Za-z\s]/g,'');">
     </div>
 
     <!-- Filter tersembunyi -->

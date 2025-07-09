@@ -127,6 +127,7 @@ button:hover {
     background-color: #e53935;
 }
 
+
 /* Responsive Design */
 @media (max-width: 768px) {
     header h1 {
