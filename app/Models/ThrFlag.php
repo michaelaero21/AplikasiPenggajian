@@ -15,7 +15,8 @@ class ThrFlag extends Model
     protected $fillable = [
         'karyawan_id',     // relasi ke tabel karyawans
         'periode',         // Y-m (bulanan)  atau  Y-m-d (mingguan — Senin)
-        'kategori',        // 'bulanan' | 'mingguan'
+        'kategori', 
+        'processed_at',       // 'bulanan' | 'mingguan'
     ];
 
     /* ---------- relasi convenience ---------- */

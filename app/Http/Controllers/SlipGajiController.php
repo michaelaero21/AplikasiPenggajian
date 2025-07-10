@@ -13,6 +13,8 @@ use PDF;
 use ZipArchive;
 use App\Models\ThrFlag;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 class SlipGajiController extends Controller
 {
@@ -30,18 +32,17 @@ public function index(Request $request)
 
     /* -------- 2. Validasi range tanggal -------- */
     if ($startDate && $endDate) {
-        try {
-            $s = Carbon::parse($startDate);
-            $e = Carbon::parse($endDate);
-            if ($s->gt($e)) {
-                return back()->withInput()
-                             ->with('error', 'Tanggal awal lebih besar dari tanggal akhir.');
-            }
-        } catch (\Exception $ex) {
-            return back()->withInput()
-                         ->with('error', 'Format tanggal tidak valid.');
-        }
+    $s = Carbon::hasFormat($startDate, 'Y-m-d') ? Carbon::parse($startDate) : null;
+    $e = Carbon::hasFormat($endDate, 'Y-m-d') ? Carbon::parse($endDate) : null;
+
+    if (!$s || !$e) {
+        return back()->withInput()->with('error', 'Format tanggal tidak valid.');
     }
+
+    if ($s->gt($e)) {
+        return back()->withInput()->with('error', 'Tanggal awal lebih besar dari tanggal akhir.');
+    }
+}
 
     /* -------- 3. Fallback periode bulanan -------- */
     if (!$periode && $startDate && $kategoriFilter === 'bulanan') {
@@ -50,13 +51,20 @@ public function index(Request $request)
 
     /* -------- 4. Hitung rangeTanggal (opsional) -------- */
     $rangeTanggal = null;
-    if ($periode && $kategoriFilter) {
-        try {
+
+    if ($periode && in_array($kategoriFilter, ['mingguan', 'bulanan'])) {
+        // Cek format periode
+        $validPeriode = match($kategoriFilter) {
+            'mingguan' => preg_match('/^\d{4}-\d{2}-\d{2}$/', $periode),
+            'bulanan'  => preg_match('/^\d{4}-\d{2}$/', $periode),
+            default    => false,
+        };
+
+        if ($validPeriode) {
             $rangeTanggal = $this->getRangeFromPeriode($periode, $kategoriFilter);
-        } catch (\Exception $e) {
-            $rangeTanggal = null;
         }
     }
+
 
     /* -------- 5. Data karyawan (tak berubah) -------- */
     $karyawans = Karyawan::query()
@@ -114,6 +122,7 @@ public function index(Request $request)
             $firstMonday->addWeek();
         }
     }
+    $listKaryawan = Karyawan::where('status', 'Aktif')->get();
     /* -------- 7. Kirim ke view -------- */
     return view('slip_gaji.index', compact(
         'karyawans',
@@ -125,7 +134,8 @@ public function index(Request $request)
         'endDate',
         'rangeTanggal',
         'slips',
-        'weekStarts',              // ===== NEW =====
+        'weekStarts', 
+        'listKaryawan',             // ===== NEW =====
     ));
 }
 
@@ -149,7 +159,7 @@ public function generateSlipFromIndex(Request $request)
     /* ---------- proses generate ---------- */
     if ($kategori === 'bulanan') {
         $periode = Carbon::parse($periode)->format('Y-m');
-        $this->generateSlipBulanan($karyawan, $periode, 'bulanan');
+        $result = $this->generateSlipBulanan($karyawan, $periode, 'bulanan');
    } elseif ($kategori === 'mingguan') {
 
     /* ----------- 1. Ambil tanggal yang dipilih user ----------- */
@@ -180,11 +190,14 @@ public function generateSlipFromIndex(Request $request)
     ]);
 
     /* ----------- 5. Generate ----------- */
-    $this->generateSlipMingguan($karyawan, $periode);
+    $result = $this->generateSlipMingguan($karyawan, $periode);
 
 
     } else {
         return back()->with('error', 'Kategori tidak dikenali.');
+    }
+    if (!$result['success']) {
+        return back()->with('error', $result['message']);
     }
 
     /* ---------- redirect dgn seluruh filter ---------- */
@@ -201,7 +214,10 @@ public function generateSlipFromIndex(Request $request)
 {
     $gaji = $karyawan->gajiKaryawan;
     if (!$gaji) {
-        throw new \Exception("Data gaji belum diatur untuk karyawan: {$karyawan->nama}");
+        return [
+            'success' => false,
+            'message' => "Data gaji belum diatur untuk karyawan: {$karyawan->nama}"
+        ];
     }
 
     $kategori = strtolower($kategori ?: $gaji->kategori_gaji);
@@ -210,11 +226,12 @@ public function generateSlipFromIndex(Request $request)
         ->whereBetween('tanggal', $range)   // seluruh status, tidak hanya “hadir”
         ->exists();
 
-    if (!$adaAbsensi) {
-        throw new \Exception(
-            "Tidak bisa membuat slip—belum ada data absensi untuk "
-            . "{$karyawan->nama} pada periode {$periode} ({$kategori})."
-        );
+     if (!$adaAbsensi) {
+        return [
+            'success' => false,
+            'message' => "Tidak bisa membuat slip—belum ada data absensi untuk "
+                       . "{$karyawan->nama} pada periode {$periode} ({$kategori})."
+        ];
     }
     $isBulanan = $kategori === 'bulanan';
     $isMingguan = $kategori === 'mingguan';
@@ -328,8 +345,18 @@ public function generateSlipFromIndex(Request $request)
 
     Storage::disk('public')->put($path, $pdf->output());
     $slip->update(['file_pdf' => 'storage/' . $path]);
+    
+    ThrFlag::where([
+    'karyawan_id'  => $karyawan->id,
+    'periode'      => $periode,
+    'kategori'     => $kategori,
+    'processed_at' => null,
+])->update(['processed_at' => now()]);
 
-    return $slip;
+     return [
+        'success' => true,
+        'slip' => $slip
+    ];
 }
 
 public function generate(Request $request)
@@ -402,7 +429,7 @@ protected function isLastWeekOfMonth(Carbon $startOfWeek): bool
 }
 
 /** 1) Wrapper slip bulanan – logika lama tetap dipakai */
-protected function generateSlipBulanan(Karyawan $karyawan, string $periode): SlipGaji
+protected function generateSlipBulanan(Karyawan $karyawan, string $periode): array
 {
     return $this->generateSlip($karyawan, $periode, 'bulanan');   // panggil mesin lama
 }
@@ -410,21 +437,37 @@ protected function generateSlipBulanan(Karyawan $karyawan, string $periode): Sli
 /** 2) Slip mingguan – uang makan tiap minggu,
  *    lembur + komponen bulanan hanya minggu terakhir
  */
-protected function generateSlipMingguan(Karyawan $karyawan, string $periode): SlipGaji
+protected function generateSlipMingguan(Karyawan $karyawan, string $periode): array
 {
-    if (Carbon::parse($periode)->dayOfWeek === Carbon::SUNDAY) {   // 0 = Sunday
-        throw new \Exception(
-            'Tanggal periode mingguan tidak boleh hari Minggu. '
-          . 'Silakan pilih tanggal Senin–Sabtu.'
-        );
+    if (Carbon::parse($periode)->dayOfWeek === Carbon::SUNDAY) {
+        return [
+            'success' => false,
+            'message' => 'Tanggal periode mingguan tidak boleh hari Minggu. '
+                       . 'Silakan pilih tanggal Senin–Sabtu.'
+        ];
     }
     $gaji = $karyawan->gajiKaryawan;
-    if (!$gaji) throw new \Exception("Data gaji {$karyawan->nama} belum diatur.");
+    if (!$gaji) {
+        return [
+            'success' => false,
+            'message' => "Data gaji belum diatur untuk karyawan: {$karyawan->nama}"
+        ];
+    }
 
     /* ---------- range & status minggu ---------- */
     [$start, $end] = $this->getRangeFromPeriode($periode, 'mingguan');
     $isLastWeek    = $this->isLastWeekOfMonth(Carbon::parse($start));
+    $adaAbsensi = Absensi::where('karyawan_id', $karyawan->id)
+        ->whereBetween('tanggal', [$start, $end])
+        ->exists();
 
+    if (!$adaAbsensi) {
+        return [
+            'success' => false,
+            'message' => "Tidak bisa membuat slip—belum ada data absensi untuk "
+                       . "{$karyawan->nama} pada periode {$periode} (mingguan)."
+        ];
+    }
     /* ---------- hadir Senin-Sabtu ---------- */
     $hadir = Absensi::where('karyawan_id',$karyawan->id)
                     ->whereBetween('tanggal',[$start,$end])
@@ -501,7 +544,17 @@ protected function generateSlipMingguan(Karyawan $karyawan, string $periode): Sl
     Storage::disk('public')->put($file,$pdf->output());
     $slip->update(['file_pdf'=>'storage/'.$file]);
 
-    return $slip;
+    ThrFlag::where([
+    'karyawan_id'  => $karyawan->id,
+    'periode'      => $periode,   // contoh: 2025‑06‑23 (Senin)
+    'kategori'     => 'mingguan',
+    'processed_at' => null,
+])->update(['processed_at' => now()]);
+
+    return [
+        'success' => true,
+        'slip'    => $slip
+    ];
 }
 
     // ** Tambahan: Preview PDF slip gaji **
@@ -637,6 +690,7 @@ protected function generateSlipMingguan(Karyawan $karyawan, string $periode): Sl
     $periodeInput  = $request->periode;                    // string / array
     $now           = now();
     $generated     = [];
+    $gagal         = [];
 
     /* ─── 3. Loop karyawan ─── */
     foreach ($request->selected as $kid) {
@@ -673,20 +727,31 @@ protected function generateSlipMingguan(Karyawan $karyawan, string $periode): Sl
         /* === B. Generate slip untuk setiap periode === */
         foreach ($periodeList as $p) {
             if ($kategoriFinal === 'mingguan') {
-                $this->generateSlipMingguan($karyawan, $p);
+                $result = $this->generateSlipMingguan($karyawan, $p);
             } else {
-                $this->generateSlip($karyawan, $p);   // asumsi sudah ada method ini
+                $result = $this->generateSlip($karyawan, $p);   // asumsi sudah ada method ini
+            }
+            if ($result['success']) {
+                $generated[] = $karyawan->nama . ' (' . $p . ')';
+            } else {
+                // Kamu bisa juga mencatat nama yang gagal kalau mau
+                $gagal[] = $karyawan->nama . ' - ' . $result['message'];
+                logger()->warning("Gagal generate slip untuk {$karyawan->nama} - {$p}: {$result['message']}");
             }
         }
 
-        $generated[] = $karyawan->nama;
     }
 
     /* ─── 4. Flash hasil ─── */
-    return back()->with(
-        'success',
-        'Slip gaji berhasil digenerate untuk: ' . implode(', ', $generated)
-    );
+    return back()->with([
+    'success' => count($generated)
+        ? 'Slip gaji berhasil digenerate untuk: ' . implode(', ', $generated)
+        : null,
+    'error' => count($gagal)
+        ? 'Gagal generate untuk: ' . implode('; ', $gagal)
+        : null,
+]);
+
 }
 protected function buildPeriodList(string $start, string $end, string $kategori): array
 {
@@ -825,14 +890,14 @@ public function downloadMassal(Request $request)
  */
 public function setThrFlagMassal(Request $request)
 {
-    /* --- 1. pastikan selected selalu array --- */
+    // 1. Normalisasi selected
     $ids = $request->input('selected');
     if (is_string($ids)) {
         $ids = array_filter(explode(',', $ids));
         $request->merge(['selected' => $ids]);
     }
 
-    /* --- 2. validasi --- */
+    // 2. Validasi
     $request->validate([
         'selected'   => 'required|array|min:1',
         'selected.*' => 'integer',
@@ -843,32 +908,72 @@ public function setThrFlagMassal(Request $request)
     $periode  = $request->periode;
     $kategori = strtolower($request->kategori);
 
+    // ✅ Deklarasi awal
     $berhasil = [];
+    $gagal = [];
+
+    // 3. Proses per karyawan
     foreach ($request->selected as $kid) {
         $karyawan = Karyawan::find($kid);
         if (!$karyawan) continue;
 
-        ThrFlag::updateOrCreate(
+        $sudahAdaSlip = \App\Models\SlipGaji::where([
+            'karyawan_id'   => $karyawan->id,
+            'periode'       => $periode,
+            'kategori_gaji' => $kategori,
+        ])->exists();
+
+        if ($sudahAdaSlip) {
+            $gagal[] = $karyawan->nama . ' (sudah ada slip)';
+            continue;
+        }
+
+        $sudahAdaFlag = \App\Models\ThrFlag::where([
+            'karyawan_id'  => $karyawan->id,
+            'periode'      => $periode,
+            'kategori'     => $kategori,
+            'processed_at' => null,
+        ])->exists();
+
+        if ($sudahAdaFlag) {
+            $gagal[] = $karyawan->nama . ' (sudah ditandai manual)';
+            continue;
+        }
+
+        \App\Models\ThrFlag::updateOrCreate(
             [
                 'karyawan_id' => $karyawan->id,
                 'periode'     => $periode,
                 'kategori'    => $kategori,
             ],
-            []   // tidak ada kolom tambahan
+            [
+                'processed_at' => null,
+            ]
         );
+
         $berhasil[] = $karyawan->nama;
     }
 
+    // 4. Feedback
     if (empty($berhasil)) {
-        return back()->with('error', 'THR gagal ditambahkan – tidak ada karyawan valid.');
+        return back()->with('error',
+            'THR gagal ditandai – semua karyawan ditolak: '
+            . implode(', ', $gagal)
+        );
     }
 
-    return back()->with(
-        'success',
-        'THR berhasil ditandai untuk: '.implode(', ', $berhasil)
+    $back = back()->with('success',
+        'THR berhasil ditandai untuk: ' . implode(', ', $berhasil)
     );
-}
 
+    if (!empty($gagal)) {
+        $back->with('warning',
+            'Lewati – karyawan berikut ditolak: ' . implode(', ', $gagal)
+        );
+    }
+
+    return $back;
+}
 
 public function generateSlipRequest(Request $request)
 {
@@ -1062,7 +1167,10 @@ public function setThrFlag(Request $request)
             'periode'     => $request->periode,
             'kategori'    => $request->kategori,
         ],
-        []
+        [
+            // === nilai yang di‑update / disetel saat INSERT ===
+            'processed_at' => null,   // reset supaya THR bisa “terbaca” lagi
+        ]
     );
     $karyawan = Karyawan::find($request->karyawan_id);
 

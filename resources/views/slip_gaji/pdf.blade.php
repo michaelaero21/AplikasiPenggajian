@@ -46,15 +46,21 @@
 
     <br>
 
-    <table>
-        <tr>
-            <td class="label">ID</td><td>: {{ $karyawan->id }}</td>
-            <td>Nama</td><td>: {{ $karyawan->nama }}</td>
-        </tr>
-        <tr>
-            <td class="label">Periode</td><td>: {{ $periode }}</td>
-        </tr>
-    </table>
+    <table style="width: 100%;">
+    <tr>
+        <td class="label" style="width: 15%;">Nama</td>
+        <td style="width: 35%;">: {{ $karyawan->nama }}</td>
+        <td class="label" style="width: 15%;">ID</td>
+        <td style="width: 35%;">: {{ $karyawan->id }}</td>
+    </tr>
+    <tr>
+        <td class="label">Jabatan</td>
+        <td>: {{ $karyawan->jabatan ?? '-' }}</td>
+        <td class="label">Periode</td>
+        <td>: {{ $periode }}</td>
+    </tr>
+</table>
+
 
     <br>
 
@@ -77,11 +83,11 @@
             <td>: Rp {{ number_format($slip->uang_transport ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td>Tunjangan Pulsa</td>
+            <td>Tunjangan Pulsa <strong>(Khusus Marketing)</td>
             <td>: Rp {{ number_format($slip->tunjangan_pulsa ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td>Tunjangan Sewa</td>
+            <td>Tunjangan Sewa Transportasi <strong>(Khusus Marketing)</td>
             <td>: Rp {{ number_format($slip->tunjangan_sewa ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
@@ -97,7 +103,7 @@
             <td>: Rp {{ number_format($slip->thr ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <td>Insentif</td>
+            <td>Insentif <strong>(Khusus Marketing)</td>
             <td>: Rp {{ number_format($slip->insentif ?? 0, 0, ',', '.') }}</td>
         </tr>
         <tr>

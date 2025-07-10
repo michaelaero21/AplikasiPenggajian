@@ -45,13 +45,27 @@
                 <button class="dropdown-item" type="submit">Generate Slip</button>
               </form>
             </li>
+            @php
+                // GUNAKAN NAMA YANG BENAR SESUAI DARI CONTROLLER
+                $idKaryawan = $karyawans->pluck('id')->toArray();
+
+                 $thrSudahDiproses = \App\Models\ThrFlag::whereIn('karyawan_id', $idKaryawan)
+                    ->where('periode', $periode)
+                    ->where('kategori', $kategori)
+                    ->whereNotNull('processed_at')  // yang sudah diproses
+                    ->pluck('karyawan_id')
+                    ->toArray();
+                // Cari apakah MASIH ADA yang BELUM diproses
+                $masihAdaYangBelum = count(array_diff($idKaryawan, $thrSudahDiproses)) > 0;
+            @endphp
             <li>
               <form id="bulk-thr" method="POST" action="{{ route('slip-gaji.setThrFlagMassal') }}">
                 @csrf
                 <input type="hidden" name="selected" value="">
                 <input type="hidden" name="periode"  value="{{ $periode }}">
                 <input type="hidden" name="kategori" value="{{ $kategori ?? '' }}">
-                <button class="dropdown-item" type="submit">Input THR</button>
+                <button class="dropdown-item" type="submit" {{ !$masihAdaYangBelum ? 'disabled title=Semua karyawan sudah ditandai THR
+                    ' : '' }}>Input THR</button>
               </form>
             </li>
             <li><hr class="dropdown-divider"></li>
@@ -203,7 +217,15 @@
                     @endif
                     <button class="btn btn-sm btn-warning">Generate Slip</button>
                 </form>
-
+                @php
+                    $sudahAdaThr = \App\Models\ThrFlag::where([
+                        'karyawan_id' => $karyawan->id,
+                        'periode'     => $periode,
+                        'kategori'    => $kategori,
+                        'processed_at' => null 
+                    ])->exists();
+                @endphp
+                @if(!$sudahAdaThr)
                 <form method="POST" action="{{ route('slip-gaji.setThrFlag') }}" class="m-0">
                     @csrf
                     <input type="hidden" name="karyawan_id" value="{{ $karyawan->id }}">
@@ -213,7 +235,9 @@
                         Input&nbsp;THR
                     </button>
                 </form>
-
+                @else
+                    <span class="badge bg-success ms-2">THR sudah ditandai</span>
+                @endif
             @endif
 
             @if($isReport && $others->count())
@@ -329,7 +353,17 @@ document.addEventListener('DOMContentLoaded', () => {
         setFormIds('#bulk-download', 'slip_ids', slipIds);
         setFormIds('#bulk-wa',       'slip_ids', slipIds);
         setFormIds('#bulk-hapus',       'slip_ids', slipIds);
-        
+        const semuaSudahTHR = checked.length > 0 &&
+        checked.every(cb => cb.dataset.thr === 'yes');
+
+        const thrButton = document.querySelector('#bulk-thr button[type="submit"]');
+        if (thrButton) {
+            thrButton.disabled = semuaSudahTHR;
+            thrButton.title = semuaSudahTHR
+                ? 'Semua karyawan terpilih sudah ditandai THR'
+                : '';
+            thrButton.classList.toggle('disabled', semuaSudahTHR);
+        }
     };
 
     // hanya di mode normal
@@ -379,6 +413,7 @@ if(window.jQuery?.fn?.dataTable){
         document.querySelectorAll('.detail-row').forEach(r=>r.style.display='none');
     });
 }
+
 
 </script>
 @endpush

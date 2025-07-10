@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('karyawan_id');
             $table->string('periode'); // Bisa Y-m (bulanan) atau Y-m-d (mingguan)
             $table->enum('kategori', ['bulanan', 'mingguan']);
+            $table->timestamp('processed_at')->nullable();
             $table->timestamps();
 
             $table->unique(['karyawan_id', 'periode', 'kategori']);
