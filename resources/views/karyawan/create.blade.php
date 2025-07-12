@@ -7,10 +7,28 @@
             <h4>Tambah Karyawan</h4>
         </div>
         <div class="form-tambah-karyawan">
-            <!-- Menampilkan pesan error jika ada -->
-            @if(session('error'))
+                       {{-- Notifikasi Error Khusus --}}
+            @if (session('error'))
                 <div class="alert alert-danger">
                     {{ session('error') }}
+                </div>
+            @endif
+
+            {{-- Notifikasi Success --}}
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            {{-- Validasi Laravel --}}
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
 
@@ -27,6 +45,9 @@
                         <label for="nomor_telepon" class="form-label">Nomor Telepon</label>
                         <input type="tel" id="nomor_telepon" name="nomor_telepon" class="form-control" required>
                         <small id="warning" class="form-text text-danger" style="display: none;">Nomor telepon harus antara 10 hingga 13 digit angka!</small>
+                        @error('nomor_telepon')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
                     </div>
                 </div>
 

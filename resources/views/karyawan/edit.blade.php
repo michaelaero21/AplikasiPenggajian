@@ -6,7 +6,32 @@
         <div class="card-header bg-warning text-white">
             <h4>Edit Karyawan</h4>
         </div>
-        <div class="form-edit-karyawan">
+            <div class="form-edit-karyawan">
+                 {{-- Notifikasi Error Khusus --}}
+            @if (session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            {{-- Notifikasi Success --}}
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            {{-- Validasi Laravel --}}
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form id="edit-karyawan-form" action="{{ route('karyawan.update', $karyawan->id) }}" method="POST">
                 @csrf
                 @method('PUT')
@@ -19,7 +44,10 @@
 
                     <div class="col-md-6 mb-3">
                         <label for="nomor_telepon" class="form-label">Nomor Telepon</label>
-                        <input type="tel" id="nomor_telepon" name="nomor_telepon" class="form-control" value="{{ $karyawan->nomor_telepon }}" pattern="[0-9\-]*" oninput="formatInputPhone(this)" required>
+                        <input type="tel" id="nomor_telepon" name="nomor_telepon" class="form-control" value="{{ old('nomor_telepon', $karyawan->nomor_telepon) }}" pattern="[0-9\-]*" oninput="formatInputPhone(this)" required>
+                        @error('nomor_telepon')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
                     </div>
                 </div>
 

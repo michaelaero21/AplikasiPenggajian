@@ -54,15 +54,19 @@ class KaryawanController extends Controller
             'alamat_karyawan' => 'required|string',
         ]);
 
-        /* 2. Cek duplikat karyawan */
-        if (Karyawan::where('nama', $request->nama)
-            ->where('jabatan', $request->jabatan)
-            ->where('nomor_telepon', $request->nomor_telepon)
-            ->exists()) {
-            return back()->withInput()
-                ->with('error', 'Data karyawan sudah ada.');
-        }
+    $duplicate = Karyawan::where('nama', $request->nama)
+        ->where('jabatan', $request->jabatan)
+        ->where('nomor_telepon', $request->nomor_telepon)
+        ->first();
 
+    if ($duplicate) {
+        return back()->withInput()->with('error', 'Data karyawan dengan nama, jabatan, dan nomor telepon ini sudah ada di sistem.');
+    }
+
+    // 3. Baru cek unique nomor telepon saja
+    if (Karyawan::where('nomor_telepon', $request->nomor_telepon)->exists()) {
+        return back()->withInput()->with('error', 'Nomor telepon ini sudah digunakan oleh karyawan lain.');
+    }
         /* 3. Buat username unik dari nama */
         $baseUsername = Str::slug($request->nama, '_');
         $username     = $baseUsername;
@@ -114,22 +118,27 @@ class KaryawanController extends Controller
         $request->validate([
             'nama'            => 'required|string|max:255',
             'jabatan'         => 'required|string|in:Accounting,Admin,Admin Penjualan,Finance,Admin Purchasing,Head Gudang,Admin Gudang,Supervisor,Marketing,Driver,Gudang,Helper Gudang,Office Girl',
-            'nomor_telepon'   => 'required|string|max:20',
+            'nomor_telepon'   => 'required|string|max:20|unique:karyawans,nomor_telepon,' . $karyawan->id,
             'jenis_kelamin'   => 'required|in:Laki-laki,Perempuan',
             'alamat_karyawan' => 'required|string',
             'status'          => 'required|in:Aktif,Nonaktif',
+        ],[
+            'nomor_telepon.unique' => 'Nomor telepon ini sudah digunakan oleh karyawan lain.',
         ]);
 
-        /* 1. Cek duplikat */
-        $duplicate = Karyawan::where('nama', $request->nama)
-            ->where('jabatan', $request->jabatan)
-            ->where('nomor_telepon', $request->nomor_telepon)
-            ->where('id', '!=', $karyawan->id)
-            ->first();
+         $duplicate = Karyawan::where('nama', $request->nama)
+        ->where('jabatan', $request->jabatan)
+        ->where('nomor_telepon', $request->nomor_telepon)
+        ->first();
+
         if ($duplicate) {
-            return back()->withInput()->with('error', 'Data karyawan dengan detail yang sama sudah ada.');
+            return back()->withInput()->with('error', 'Data karyawan dengan nama, jabatan, dan nomor telepon ini sudah ada di sistem.');
         }
 
+        // 3. Baru cek unique nomor telepon saja
+        if (Karyawan::where('nomor_telepon', $request->nomor_telepon)->exists()) {
+            return back()->withInput()->with('error', 'Nomor telepon ini sudah digunakan oleh karyawan lain.');
+        }
         DB::transaction(function () use ($request, $karyawan) {
             /* 2. Update tabel karyawan */
             $karyawan->update($request->only([
