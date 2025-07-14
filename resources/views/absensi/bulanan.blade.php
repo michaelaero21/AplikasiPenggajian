@@ -1,7 +1,7 @@
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th rowspan="2">ID</th>
+            <th rowspan="2">No</th>
             <th rowspan="2">Nama Karyawan</th>
             <th colspan="{{ count($days) }}" class="text-center">Hari / Tanggal</th>
             <th rowspan="2">Aksi</th>
@@ -19,7 +19,7 @@
         @if(isset($karyawans['Bulanan']) && $karyawans['Bulanan']->isNotEmpty())
             @foreach ($karyawans['Bulanan'] as $karyawan)
                 <tr>
-                    <td>{{ $karyawan->id }}</td>
+                    <td>{{ $loop->iteration  }}</td>
                     <td>{{ $karyawan->nama }}</td>
                     @foreach ($days as $d)
                         @php

@@ -26,6 +26,9 @@ return new class extends Migration
             $table->decimal('tunjangan_sewa_transport', 10, 2)->nullable(); 
             $table->decimal('tunjangan_pulsa', 10, 2)->nullable(); // Wajib
 
+            // Tambahan untuk omset
+            $table->decimal('omset', 15, 2)->nullable(); // <-- ditambahkan di sini
+            
             // Insentif tidak wajib diisi
             $table->decimal('insentif', 10, 2)->nullable();
 

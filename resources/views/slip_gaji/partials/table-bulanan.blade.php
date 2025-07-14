@@ -83,7 +83,7 @@
                 <th style="width:45px">
                 <input type="checkbox" id="master">
                 </th>
-                <th>ID</th>
+                <th>No</th>
                 <th>Nama</th>
                 <th>Jabatan</th>
                 <th>Kategori Gaji</th>
@@ -112,7 +112,7 @@
                         data-slip="{{ $slip ? 'yes' : 'no' }}"
                         @if($slip) data-slipid="{{ $slip->id }}" @endif>
                     </td>
-                    <td>{{ $karyawan->id }}</td>
+                    <td>{{ $loop->iteration  }}</td>
                     <td>{{ $karyawan->nama }}</td>
                     <td>{{ $karyawan->jabatan ?? '-' }}</td>
                     <td>{{ ucfirst($kategoriGaji) }}</td>

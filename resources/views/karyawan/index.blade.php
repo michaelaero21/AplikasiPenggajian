@@ -35,7 +35,7 @@
     <table class="table table-striped table-bordered text-center" id="karyawan-table">
         <thead class="table-dark">
             <tr>
-                <th>ID</th>
+                <th>No</th>
                 <th>Nama</th>
                 <th>Jabatan</th>
                 <th>Alamat</th>
@@ -52,7 +52,7 @@
         <tbody>
             @forelse ($karyawans as $karyawan)
                 <tr>
-                    <td>{{ $karyawan->id }}</td>
+                    <td>{{ $loop->iteration }}</td>
                     <td>{{ $karyawan->nama }}</td>
                     <td>{{ $karyawan->jabatan }}</td>
                     <td>{{ $karyawan->alamat_karyawan }}</td>
@@ -141,6 +141,16 @@
     function formatPhoneNumber(phoneNumber) {
         return phoneNumber.replace(/^(\d{4})(\d{4})(\d{4})$/, "$1-$2-$3");
     }
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.alert .btn-close').forEach(function (button) {
+            button.addEventListener('click', function () {
+                let alert = button.closest('.alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    });
 </script>
 
 @endsection

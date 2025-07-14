@@ -7,10 +7,18 @@
 <div class="table-container">
     <h3 class="mb-4">Daftar Absensi Karyawan</h3>
 
-    @if (session('success'))
-        <div class="alert alert-success mb-4">{{ session('success') }}</div>
-    @elseif (session('error'))
-        <div class="alert alert-danger mb-4">{{ session('error') }}</div>
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     <!-- Tampilkan nama karyawan jika hanya satu -->
@@ -141,6 +149,16 @@
             timer = setTimeout(() => func.apply(this, arguments), delay);
         };
     }
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.alert .btn-close').forEach(function (button) {
+            button.addEventListener('click', function () {
+                let alert = button.closest('.alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    });
 </script>
 @endsection
 

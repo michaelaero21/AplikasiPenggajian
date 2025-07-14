@@ -19,7 +19,8 @@ class GajiKaryawan extends Model
         'thr', 
         'tunjangan_sewa_transport', 
         'tunjangan_pulsa', 
-        'insentif'];
+        'insentif',
+        'omset'];
 
     public function karyawan()
     {

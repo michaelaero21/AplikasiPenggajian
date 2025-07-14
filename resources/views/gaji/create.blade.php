@@ -75,20 +75,29 @@
                 {{-- Field Tambahan Marketing --}}
                 <div id="marketing-fields" class="d-none mt-4">
                     <h5>Komponen Tambahan untuk Marketing</h5>
-                    @php
-                        $marketingFields = [
-                            'tunjangan_sewa_transport' => 'Tunjangan Sewa Transportasi',
-                            'tunjangan_pulsa' => 'Tunjangan Pulsa',
-                            'insentif' => 'Insentif'
-                        ];
-                    @endphp
-                    @foreach($marketingFields as $field => $label)
-                        <div class="mb-3">
-                            <label for="{{ $field }}" class="form-label">{{ $label }}:</label>
-                            <input type="text" class="form-control" id="{{ $field }}_display" placeholder="Masukkan {{ $label }}" oninput="formatRupiah(this, '{{ $field }}')">
-                            <input type="hidden" name="{{ $field }}" id="{{ $field }}">
-                        </div>
-                    @endforeach
+                    <div class="mb-3">
+                        <label for="tunjangan_sewa_transport" class="form-label">Tunjangan Sewa Transportasi:</label>
+                        <input type="text" class="form-control" id="tunjangan_sewa_transport_display" placeholder="Masukkan Tunjangan Sewa Transportasi" oninput="formatRupiah(this, 'tunjangan_sewa_transport')">
+                        <input type="hidden" name="tunjangan_sewa_transport" id="tunjangan_sewa_transport">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tunjangan_pulsa" class="form-label">Tunjangan Pulsa:</label>
+                        <input type="text" class="form-control" id="tunjangan_pulsa_display" placeholder="Masukkan Tunjangan Pulsa" oninput="formatRupiah(this, 'tunjangan_pulsa')">
+                        <input type="hidden" name="tunjangan_pulsa" id="tunjangan_pulsa">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="omset_display" class="form-label">Omset Marketing :</label>
+                        <input type="text" class="form-control" id="omset_display" placeholder="Masukkan Omset" oninput="formatRupiah(this, 'omset'); hitungInsentif();">
+                        <input type="hidden" name="omset" id="omset">   
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="insentif" class="form-label">Insentif (Otomatis):</label>
+                        <input type="text" class="form-control" id="insentif_display" readonly>
+                        <input type="hidden" name="insentif" id="insentif">
+                    </div>
                 </div>
 
                 <!-- Tombol Simpan dan Batal -->
@@ -103,18 +112,31 @@
 
 <script>
     document.getElementById('karyawan_id').addEventListener('change', function () {
-        var selectedOption = this.options[this.selectedIndex];
-        var jabatan = selectedOption.getAttribute('data-jabatan');
-        document.getElementById('jabatan').value = jabatan;
+    var selectedOption = this.options[this.selectedIndex];
+    var jabatan = selectedOption.getAttribute('data-jabatan');
+    document.getElementById('jabatan').value = jabatan;
 
-        if (jabatan && jabatan.toLowerCase() === 'marketing') {
-            document.getElementById('marketing-fields').classList.remove('d-none');
-            document.querySelectorAll('.non-marketing-fields').forEach(el => el.classList.add('d-none'));
-        } else {
-            document.getElementById('marketing-fields').classList.add('d-none');
-            document.querySelectorAll('.non-marketing-fields').forEach(el => el.classList.remove('d-none'));
-        }
-    });
+    if (jabatan && jabatan.toLowerCase() === 'marketing') {
+        // Tampilkan field marketing
+        document.getElementById('marketing-fields').classList.remove('d-none');
+
+        // Sembunyikan hanya uang_transportasi
+        document.querySelector('[for="uang_transportasi"]').closest('.mb-3').classList.add('d-none');
+        
+        // Tampilkan semua field lain
+        document.querySelectorAll('.non-marketing-fields').forEach(el => {
+            if (!el.querySelector('#uang_transportasi')) {
+                el.classList.remove('d-none');
+            }
+        });
+    } else {
+        // Non-marketing: sembunyikan marketing field
+        document.getElementById('marketing-fields').classList.add('d-none');
+
+        // Tampilkan semua field umum (termasuk uang_transportasi)
+        document.querySelectorAll('.non-marketing-fields').forEach(el => el.classList.remove('d-none'));
+    }
+});
 
     function formatRupiah(input, hiddenFieldId) {
         let value = input.value.replace(/\D/g, '');
@@ -142,5 +164,23 @@
             }
         }
     });
+    function hitungInsentif() {
+    const omsetInput = document.getElementById('omset');
+    const insentifInput = document.getElementById('insentif');
+    const insentifDisplay = document.getElementById('insentif_display');
+
+    let omset = parseFloat(omsetInput.value) || 0;
+    let insentif = 0;
+
+    if (omset >= 1000000) {
+        insentif = omset * 0.002; // 0.2%
+    } else {
+        insentif = omset * 0.001; // 0.1%
+    }
+
+    insentifInput.value = Math.round(insentif);
+    insentifDisplay.value = "Rp " + Math.round(insentif).toLocaleString("id-ID");
+}
+
 </script>
 @endsection

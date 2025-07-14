@@ -50,7 +50,7 @@
        <table class="table table-striped table-bordered text-center">
     <thead class="table-dark">
         <tr>
-            <th>ID</th>
+            <th>No</th>
             <th>Nama</th>
             <th>Jabatan</th>
             <th>Gaji Pokok</th>
@@ -65,7 +65,7 @@
     <tbody>
         @foreach ($data as $item)
         <tr data-type="main">
-            <td>{{ $item['karyawan']->id}}</td>
+            <td>{{ $loop->iteration}}</td>
             <td>{{ $item['karyawan']->nama }}</td>
             <td>{{ $item['karyawan']->jabatan }}</td>
             <td>Rp {{ number_format($item['total_gaji_pokok'], 0, ',', '.') }}</td>

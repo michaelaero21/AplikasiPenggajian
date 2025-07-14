@@ -7,7 +7,17 @@
     <h2 class="mb-4">Data Gaji Karyawan</h2>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
       <!-- Search bar tetap sendiri di baris atas -->
@@ -53,7 +63,7 @@
         <table class="table table-striped table-bordered text-center" id="gaji-table">
             <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
+                    <th>No</th>
                     <th>Nama Karyawan</th>
                     <th>Jabatan</th>
                     <th>Kategori Gaji</th>
@@ -73,7 +83,7 @@
             <tbody>
                 @forelse($gajiKaryawan as $gaji)
                     <tr>
-                        <td>{{ $gaji->karyawan->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $gaji->karyawan->nama }}</td>
                         <td>{{ $gaji->karyawan->jabatan }}</td>
                         <td>{{ $gaji->kategori_gaji }}</td>
@@ -81,14 +91,15 @@
                         <td>Rp {{ number_format($gaji->uang_makan, 2, ',', '.') }}</td>
                         <td>Rp {{ number_format($gaji->asuransi, 2, ',', '.') }}</td>
 
-                        @if($gaji->karyawan->jabatan == 'Marketing')
-                            <!-- Tidak menampilkan uang transportasi & lembur untuk marketing -->
+                        @if(strtolower($gaji->karyawan->jabatan) == 'marketing')
+                            <!-- Marketing: sembunyikan hanya uang transportasi -->
                             <td>-</td>
-                            <td>-</td>
+                            <td>Rp {{ number_format($gaji->uang_lembur, 2, ',', '.') }}</td>
                         @else
                             <td>Rp {{ number_format($gaji->uang_transportasi, 2, ',', '.') }}</td>
                             <td>Rp {{ number_format($gaji->uang_lembur, 2, ',', '.') }}</td>
                         @endif
+
 
                         <td>Rp {{ number_format($gaji->thr, 2, ',', '.') }}</td>
 
@@ -144,6 +155,16 @@
             timer = setTimeout(() => func.apply(this, arguments), delay);
         };
     }
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.alert .btn-close').forEach(function (button) {
+            button.addEventListener('click', function () {
+                let alert = button.closest('.alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    });
 </script>
 
 @endsection

@@ -5,11 +5,18 @@
 <div class="container">
     <h3>Pindahkan Data Absensi</h3>
 
-    {{-- alert sukses / gagal --}}
-    @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @elseif (session('error'))
-        <div class="alert alert-danger">{{ session('error') }}</div>
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     {{-- FORM PINDAH ABSENSI --}}
@@ -78,3 +85,15 @@
     .izin {background:#dc3545}
 </style>
 @endpush
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.alert .btn-close').forEach(function (button) {
+            button.addEventListener('click', function () {
+                let alert = button.closest('.alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>

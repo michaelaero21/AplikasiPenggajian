@@ -6,11 +6,18 @@
 <div class="table-container">
     <h3 class="mb-3">Absensi – {{ $karyawan->nama }}</h3>
 
-    {{-- notifikasi sukses / error --}}
-    @if (session('success'))
-        <div class="alert alert-success mb-3">{{ session('success') }}</div>
-    @elseif (session('error'))
-        <div class="alert alert-danger mb-3">{{ session('error') }}</div>
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     @endif
 
     {{-- filter bulan & tahun --}}
@@ -46,7 +53,7 @@
         <table class="table table-bordered table-striped table-hover table-sm">
             <thead>
                 <tr>
-                    <th rowspan="2">ID</th>
+                    <th rowspan="2">No</th>
                     <th rowspan="2">Nama&nbsp;Karyawan</th>
                     <th colspan="{{ count($days) }}" class="text-center">Hari / Tanggal</th>
                 </tr>
@@ -80,10 +87,22 @@
                                 {{ $absen->jam_masuk }}<br>{{ $absen->jam_pulang }}
                             @endif
                         </td>
-                    @endforeach
+                    @endforeach    
                 </tr>
             </tbody>
         </table>
     </div>
 
 @endsection
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.alert .btn-close').forEach(function (button) {
+            button.addEventListener('click', function () {
+                let alert = button.closest('.alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>

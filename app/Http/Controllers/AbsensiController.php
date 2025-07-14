@@ -451,6 +451,25 @@ public function showEditForm(Request $request, $karyawanId)
                 $month = (int) $m[1];
             }
         }
+         // Ambil ID karyawan yang sudah ada absensinya di bulan tersebut
+        $existingKaryawanIds = Absensi::whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
+            ->pluck('karyawan_id')
+            ->unique();
+
+        // // Ambil hanya karyawan yang belum memiliki absensi untuk bulan & tahun itu
+        $karyawans = Karyawan::whereNotIn('id', $existingKaryawanIds)
+            ->when($kategori_gaji === 'mingguan', function ($q) {
+                $q->whereHas('gajiKaryawan', fn($g) => $g->where('kategori_gaji', 'Mingguan'));
+            })
+            ->when($kategori_gaji === 'bulanan', function ($q) {
+                $q->whereHas('gajiKaryawan', fn($g) => $g->where('kategori_gaji', 'Bulanan'));
+            })
+            ->when($kategori_gaji === 'belum_diketahui', function ($q) {
+                $q->whereDoesntHave('gajiKaryawan');
+            })
+            ->orderBy('nama')
+            ->get();
 
         $convertTime = function ($value) {
             if (is_numeric($value)) {
@@ -486,10 +505,7 @@ public function showEditForm(Request $request, $karyawanId)
 
         return view('absensi.preview', [
             'previewData' => $previewData,
-            'karyawans' => Karyawan::all(),
-            'karyawanMingguan' => $karyawanMingguan,
-            'karyawanBulanan' => $karyawanBulanan,
-            'karyawanBelumDiketahui' => $karyawanBelumDiketahui,
+            'karyawans' => $karyawans,
             'kategori_gaji' => $kategori_gaji,
             'filePath' => $path,
             'month' => $month,

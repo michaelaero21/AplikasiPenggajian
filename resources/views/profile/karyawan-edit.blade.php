@@ -4,8 +4,20 @@
 <div class="container">
     <h2>Edit Profil</h2>
 
+    {{-- Notifikasi Error Khusus --}}
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    @endif
+
+    {{-- Notifikasi Success --}}
     @if (session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     @endif
 
     <form action="{{ route('profile.karyawan.update') }}" method="POST" enctype="multipart/form-data">
@@ -156,6 +168,16 @@ window.addEventListener('DOMContentLoaded', () => {
         phone.value = formatPhoneNumberInput(phone.value);
         phone.addEventListener('input', () => formatWithCaret(phone));
     }
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.alert .btn-close').forEach(function (button) {
+            button.addEventListener('click', function () {
+                let alert = button.closest('.alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
+    });
 });
 </script>
 @endsection

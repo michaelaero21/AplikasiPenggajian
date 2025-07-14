@@ -106,7 +106,7 @@
             @unless($isReport)
                 <th class="text-center p-0" style="width:45px"><input type="checkbox" id="master" class="form-check-input m-0"></th>
             @endunless
-            <th>ID</th>
+            <th>No</th>
             <th>Nama</th>
             <th>Jabatan</th>
             <th>Kategori</th>
@@ -174,7 +174,7 @@
                        @if($slip) data-slipid="{{ $slip->id }}" @endif></td>
         @endunless
 
-        <td>{{ $karyawan->id }}</td>
+        <td>{{ $loop->iteration }}</td>
         <td>{{ $karyawan->nama }}</td>
         <td>{{ $karyawan->jabatan ?? '-' }}</td>
         <td>{{ ucfirst($karyawan->gajiKaryawan->kategori_gaji ?? '-') }}</td>

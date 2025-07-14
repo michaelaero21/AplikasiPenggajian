@@ -12,6 +12,7 @@
                 <div class="alert alert-danger">
                     {{ session('error') }}
                 </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             @endif
 
             {{-- Notifikasi Success --}}
@@ -19,6 +20,7 @@
                 <div class="alert alert-success">
                     {{ session('success') }}
                 </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             @endif
 
             {{-- Validasi Laravel --}}
@@ -30,6 +32,7 @@
                         @endforeach
                     </ul>
                 </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             @endif
 
             <form id="edit-karyawan-form" action="{{ route('karyawan.update', $karyawan->id) }}" method="POST">
@@ -161,6 +164,16 @@
     namaInput.addEventListener('input', () => {
         // buang seluruh karakter NON‑huruf & NON‑spasi
         namaInput.value = namaInput.value.replace(/[^A-Za-z\s]/g, '');
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.alert .btn-close').forEach(function (button) {
+            button.addEventListener('click', function () {
+                let alert = button.closest('.alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
     });
     });
 </script>

@@ -28,5 +28,14 @@ function debounce(fn, delay) {
         timer = setTimeout(() => fn.apply(this, arguments), delay);
     };
 }
-
+    document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.alert .btn-close').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    let alert = button.closest('.alert');
+                    if (alert) {
+                        alert.style.display = 'none';
+                    }
+                });
+            });
+        });
 </script>

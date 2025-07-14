@@ -126,19 +126,24 @@ class KaryawanController extends Controller
             'nomor_telepon.unique' => 'Nomor telepon ini sudah digunakan oleh karyawan lain.',
         ]);
 
-         $duplicate = Karyawan::where('nama', $request->nama)
-        ->where('jabatan', $request->jabatan)
-        ->where('nomor_telepon', $request->nomor_telepon)
-        ->first();
+        // 1. Cek kombinasi nama + jabatan + nomor telepon
+        $duplicate = Karyawan::where('nama', $request->nama)
+            ->where('jabatan', $request->jabatan)
+            ->where('nomor_telepon', $request->nomor_telepon)
+            ->where('id', '!=', $karyawan->id) // penting
+            ->first();
 
         if ($duplicate) {
             return back()->withInput()->with('error', 'Data karyawan dengan nama, jabatan, dan nomor telepon ini sudah ada di sistem.');
         }
 
-        // 3. Baru cek unique nomor telepon saja
-        if (Karyawan::where('nomor_telepon', $request->nomor_telepon)->exists()) {
+        // 2. Cek nomor telepon sudah dipakai karyawan lain
+        if (Karyawan::where('nomor_telepon', $request->nomor_telepon)
+            ->where('id', '!=', $karyawan->id) // penting
+            ->exists()) {
             return back()->withInput()->with('error', 'Nomor telepon ini sudah digunakan oleh karyawan lain.');
         }
+
         DB::transaction(function () use ($request, $karyawan) {
             /* 2. Update tabel karyawan */
             $karyawan->update($request->only([

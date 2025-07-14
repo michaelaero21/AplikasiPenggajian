@@ -25,7 +25,13 @@ class GajiKaryawanController extends Controller
 
     public function create()
     {
-        $karyawan = Karyawan::all();
+        $sudahAdaGaji = GajiKaryawan::pluck('karyawan_id')->toArray();
+
+        // Ambil hanya karyawan yang belum punya gaji
+        $karyawan = Karyawan::whereNotIn('id', $sudahAdaGaji)->get();
+        if ($karyawan->isEmpty()) {
+            return redirect()->route('gaji.index')->with('error', 'Semua karyawan sudah memiliki data gaji.');
+    }
         return view('gaji.create', compact('karyawan'));
     }
 
@@ -98,6 +104,7 @@ class GajiKaryawanController extends Controller
             'tunjangan_sewa_transport' => 'nullable|numeric',
             'tunjangan_pulsa' => 'nullable|numeric',
             'insentif' => 'nullable|numeric',
+            'omset' => 'nullable|numeric|min:0',
         ]);
     }
 
@@ -112,12 +119,15 @@ class GajiKaryawanController extends Controller
             'uang_transportasi' => $request->uang_transportasi ?? 0,  // Pastikan ada nilai default
             'uang_lembur' => $request->uang_lembur ?? 0,  // Nilai default jika tidak ada input
             'thr' => $request->thr ?? 0,  // Nilai default jika tidak ada input
+            'omset' => $request->omset ?? 0,
         ];
     
         if ($jabatan === 'Marketing') {
+            $omset = $request->omset ?? 0;
+            $insentif = $omset >= 1000000 ? $omset * 0.002 : $omset * 0.001;
             $data['tunjangan_sewa_transport'] = $request->tunjangan_sewa_transport ?? 0;
             $data['tunjangan_pulsa'] = $request->tunjangan_pulsa ?? 0;
-            $data['insentif'] = $request->insentif ?? 0;
+            $data['insentif'] = $insentif;
         }
     
         return $data;

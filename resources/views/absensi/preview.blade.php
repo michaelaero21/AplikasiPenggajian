@@ -37,24 +37,10 @@
             <select name="karyawan_id" id="karyawan_id" class="form-select" required>
                 <option value="">-- Pilih Karyawan --</option>
 
-                @if($kategori_gaji === 'mingguan')
-                    @foreach($karyawanMingguan as $karyawan)
-                        <option value="{{ $karyawan->id }}">{{ $karyawan->nama }}</option>
-                    @endforeach
-                @elseif($kategori_gaji === 'bulanan')
-                    @foreach($karyawanBulanan as $karyawan)
-                        <option value="{{ $karyawan->id }}">{{ $karyawan->nama }}</option>
-                    @endforeach
-                @elseif($kategori_gaji === 'belum_diketahui')
-                    @foreach($karyawanBelumDiketahui as $karyawan)
-                        <option value="{{ $karyawan->id }}">{{ $karyawan->nama }}</option>
-                    @endforeach
-                @else
-                    {{-- Jika kategori tidak diketahui, tampilkan semua --}}
-                    @foreach($karyawans as $karyawan)
-                        <option value="{{ $karyawan->id }}">{{ $karyawan->nama }}</option>
-                    @endforeach
-                @endif
+                @foreach($karyawans as $karyawan)
+                    <option value="{{ $karyawan->id }}">{{ $karyawan->nama }}</option>
+                @endforeach
+
             </select>
         </div>
 

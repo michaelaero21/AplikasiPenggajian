@@ -55,7 +55,7 @@
                 @endphp
 
                 @foreach($fields as $field => $label)
-                    <div class="mb-3 field-group {{ in_array($field, ['uang_transportasi', 'uang_lembur']) ? 'non-marketing' : '' }}">
+                    <div class="mb-3 field-group {{ $field === 'uang_transportasi' ? 'non-marketing' : '' }}">
                         <label for="{{ $field }}" class="form-label">{{ $label }}:</label>
                         <input type="text" class="form-control" id="{{ $field }}_display" oninput="formatRupiah(this, '{{ $field }}')" value="{{ number_format($gajiKaryawan->$field, 0, ',', '.') }}">
                         <input type="hidden" name="{{ $field }}" id="{{ $field }}" value="{{ $gajiKaryawan->$field }}">
@@ -65,20 +65,29 @@
                 {{-- Komponen Khusus Marketing --}}
                 <div id="marketing-fields" class="mt-4 {{ strtolower($gajiKaryawan->karyawan->jabatan) == 'marketing' ? '' : 'd-none' }}">
                     <h5>Komponen Tambahan untuk Marketing</h5>
-                    @php
-                        $marketingFields = [
-                            'tunjangan_sewa_transport' => 'Tunjangan Sewa Transportasi',
-                            'tunjangan_pulsa' => 'Tunjangan Pulsa',
-                            'insentif' => 'Insentif'
-                        ];
-                    @endphp
-                    @foreach($marketingFields as $field => $label)
-                        <div class="mb-3 field-group marketing">
-                            <label for="{{ $field }}" class="form-label">{{ $label }}:</label>
-                            <input type="text" class="form-control" id="{{ $field }}_display" oninput="formatRupiah(this, '{{ $field }}')" value="{{ number_format($gajiKaryawan->$field, 0, ',', '.') }}">
-                            <input type="hidden" name="{{ $field }}" id="{{ $field }}" value="{{ $gajiKaryawan->$field }}">
-                        </div>
-                    @endforeach
+                    <div class="mb-3 field-group marketing">
+                    <label for="tunjangan_sewa_transport_display" class="form-label">Tunjangan Sewa Transportasi:</label>
+                    <input type="text" class="form-control" id="tunjangan_sewa_transport_display" oninput="formatRupiah(this, 'tunjangan_sewa_transport')" value="{{ number_format($gajiKaryawan->tunjangan_sewa_transport, 0, ',', '.') }}">
+                    <input type="hidden" name="tunjangan_sewa_transport" id="tunjangan_sewa_transport" value="{{ $gajiKaryawan->tunjangan_sewa_transport }}">
+                </div>
+
+                <div class="mb-3 field-group marketing">
+                    <label for="tunjangan_pulsa_display" class="form-label">Tunjangan Pulsa:</label>
+                    <input type="text" class="form-control" id="tunjangan_pulsa_display" oninput="formatRupiah(this, 'tunjangan_pulsa')" value="{{ number_format($gajiKaryawan->tunjangan_pulsa, 0, ',', '.') }}">
+                    <input type="hidden" name="tunjangan_pulsa" id="tunjangan_pulsa" value="{{ $gajiKaryawan->tunjangan_pulsa }}">
+                </div>
+
+                <div class="mb-3 field-group marketing">
+                    <label for="omset_display" class="form-label">Omset Marketing :</label>
+                    <input type="text" class="form-control" id="omset_display" placeholder="Masukkan Omset" oninput="formatRupiah(this, 'omset'); hitungInsentif();" value="{{ number_format($gajiKaryawan->omset ?? 0, 0, ',', '.') }}">
+                    <input type="hidden" name="omset" id="omset" value="{{ $gajiKaryawan->omset ?? 0 }}">
+                </div>
+
+                <div class="mb-3 field-group marketing">
+                    <label for="insentif_display" class="form-label">Insentif (Otomatis):</label>
+                    <input type="text" class="form-control" id="insentif_display" readonly value="{{ 'Rp ' . number_format($gajiKaryawan->insentif, 0, ',', '.') }}">
+                    <input type="hidden" name="insentif" id="insentif" value="{{ $gajiKaryawan->insentif }}">
+                </div>
                 </div>
 
                 <div class="d-flex justify-content-start mt-4 gap-2">
@@ -148,5 +157,17 @@
 
         toggleFields(jabatanInput.value.toLowerCase());
     });
+    function hitungInsentif() {
+    const omset = parseInt(document.getElementById('omset').value) || 0;
+    const insentifInput = document.getElementById('insentif');
+    const insentifDisplay = document.getElementById('insentif_display');
+
+    let insentif = omset >= 1000000 ? omset * 0.002 : omset * 0.001;
+    let rounded = Math.round(insentif);
+
+    insentifInput.value = rounded;
+    insentifDisplay.value = "Rp " + rounded.toLocaleString("id-ID");
+}
+
 </script>
 @endsection

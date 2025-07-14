@@ -7,10 +7,11 @@
             <h4>Tambah Karyawan</h4>
         </div>
         <div class="form-tambah-karyawan">
-                       {{-- Notifikasi Error Khusus --}}
+            {{-- Notifikasi Error Khusus --}}
             @if (session('error'))
                 <div class="alert alert-danger">
                     {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
@@ -18,7 +19,9 @@
             @if (session('success'))
                 <div class="alert alert-success">
                     {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+                
             @endif
 
             {{-- Validasi Laravel --}}
@@ -29,7 +32,9 @@
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+                
             @endif
 
             <form action="{{ route('karyawan.store') }}" method="POST">
@@ -89,7 +94,7 @@
         </div>
     </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function formatPhoneNumber(input) {
         let raw = input.value.replace(/[^0-9]/g, ''); // Hanya angka
@@ -137,6 +142,16 @@
     namaInput.addEventListener('input', () => {
         // buang seluruh karakter NON‑huruf & NON‑spasi
         namaInput.value = namaInput.value.replace(/[^A-Za-z\s]/g, '');
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.alert .btn-close').forEach(function (button) {
+            button.addEventListener('click', function () {
+                let alert = button.closest('.alert');
+                if (alert) {
+                    alert.style.display = 'none';
+                }
+            });
+        });
     });
 });
 </script>
