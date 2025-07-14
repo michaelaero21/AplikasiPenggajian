@@ -34,6 +34,27 @@
             <option value="bulanan" {{ request('kategori_gaji') == 'bulanan' ? 'selected' : '' }}>Bulanan</option>
         </select>
     </div>
+    <!-- {{-- ── Deret 2: Range tanggal + tombol ── --}}
+    <div class="row g-3 align-items-end mt-0">
+        {{-- Dari tanggal --}}
+        <div class="col-md-4 col-lg-3">
+            <label for="start_date" class="form-label">Dari Tanggal</label>
+            <input type="date"
+                   name="start_date"
+                   id="start_date"
+                   class="form-control"
+                   value="{{ request('start_date') }}">
+        </div>
+
+        {{-- Sampai tanggal --}}
+        <div class="col-md-4 col-lg-3">
+            <label for="end_date" class="form-label">Sampai Tanggal</label>
+            <input type="date"
+                   name="end_date"
+                   id="end_date"
+                   class="form-control"
+                   value="{{ request('end_date') }}">
+        </div> -->
 
     {{-- Tombol aksi --}}
     <div class="col-md-2 col-lg-2">
@@ -49,75 +70,124 @@
     <div class="table-responsive">
        <table class="table table-striped table-bordered text-center">
     <thead class="table-dark">
-        <tr>
-            <th>No</th>
-            <th>Nama</th>
-            <th>Jabatan</th>
-            <th>Gaji Pokok</th>
-            <th>Tunjangan</th>
-            <th>Lembur</th>
-            <th>THR</th>
-            <th>Insentif</th>
-            <th>Total</th>
-            <th>Aksi</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($data as $item)
+    <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>Jabatan</th>
+        <th>Periode</th>
+        <th>Gaji Pokok</th>
+        <th>Uang Makan</th>
+        <th>Asuransi BPJS</th>
+        <th>Uang Transportasi</th>
+        <th>Lembur</th>
+        <th>THR</th>
+        <th>Tunjangan Sewa Transportasi</th>
+        <th>Tunjangan Pulsa</th>
+        <th>Insentif</th>
+        <th>Total</th>
+        <th>Aksi</th>
+    </tr>
+</thead>
+<tbody>
+    @foreach ($data as $item)
         <tr data-type="main">
-            <td>{{ $loop->iteration}}</td>
+            <td>{{ $loop->iteration }}</td>
             <td>{{ $item['karyawan']->nama }}</td>
             <td>{{ $item['karyawan']->jabatan }}</td>
+            @php
+                $firstSlip = collect($item['slips'])->first();
+                $kategori  = $firstSlip->kategori_gaji ?? null;
+                $periode   = '-';
+
+                if ($kategori === 'mingguan') {
+                    $minggu = Carbon\Carbon::parse($firstSlip->periode)->startOfWeek(Carbon\Carbon::MONDAY);
+                    $periode = $minggu->translatedFormat('d M') . ' – ' . $minggu->copy()->addDays(5)->translatedFormat('d M Y');
+                } elseif ($kategori === 'bulanan') {
+                    $periode = Carbon\Carbon::createFromFormat('Y-m', $firstSlip->periode)->translatedFormat('F Y');
+                }
+            @endphp
+
+
+
+            <td>{{ $periode }}</td> <!-- Tambahan baris periode -->
+
             <td>Rp {{ number_format($item['total_gaji_pokok'], 0, ',', '.') }}</td>
-            <td>Rp {{ number_format($item['total_tunjangan'], 0, ',', '.') }}</td>
+            <td>Rp {{ number_format($item['total_uang_makan'], 0, ',', '.') }}</td>
+            <td>Rp {{ number_format($item['total_bpjs'], 0, ',', '.') }}</td>
+            <td>Rp {{ number_format($item['total_transport'], 0, ',', '.') }}</td>
             <td>Rp {{ number_format($item['total_lembur'], 0, ',', '.') }}</td>
             <td>Rp {{ number_format($item['total_thr'], 0, ',', '.') }}</td>
+            <td>Rp {{ number_format($item['total_tunjangan_sewa'], 0, ',', '.') }}</td>
+            <td>Rp {{ number_format($item['total_tunjangan_pulsa'], 0, ',', '.') }}</td>
             <td>Rp {{ number_format($item['total_insentif'], 0, ',', '.') }}</td>
-            <td><strong>Rp {{ number_format($item['total_gaji'], 0, ',', '.') }}</strong></td>
+            <td><strong>Rp {{ number_format($item['total_dibayar'], 0, ',', '.') }}</strong></td>
             <td>
                 <button type="button" class="btn btn-sm btn-outline-secondary toggle-detail" data-id="{{ $item['karyawan']->id }}">🔽</button>
             </td>
         </tr>
+
+        {{-- Detail --}}
         <tr id="detail-{{ $item['karyawan']->id }}" data-type="detail" style="display: none; background: #f9f9f9">
-            <td colspan="10">
-                <table class="table table-sm">
+            <td colspan="15">
+                <table class="table table-sm mb-0">
                     <thead>
                         <tr>
-                            <th>Tanggal</th>
+                            <th>Periode</th>
                             <th>Kategori</th>
                             <th>Gaji Pokok</th>
-                            <th>Tunjangan</th>
+                            <th>Uang Makan</th>
+                            <th>BPJS</th>
+                            <th>Uang Transportasi</th>
                             <th>Lembur</th>
                             <th>THR</th>
+                            <th>Tunjangan Sewa Transportasi</th>
+                            <th>Tunjangan Pulsa</th>
                             <th>Insentif</th>
                             <th>Total</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($item['slips'] as $slip)
-                        <tr>
-                            <td>{{ $slip->created_at->translatedFormat('j F Y H:i') }}</td>
-                            <td>{{ ucfirst($slip->kategori_gaji) }}</td>
-                            <td>Rp {{ number_format($slip->gaji_pokok, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($slip->tunjangan, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($slip->lembur, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($slip->thr, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($slip->insentif, 0, ',', '.') }}</td>
-                            <td><strong>Rp {{ number_format($slip->total_dibayar, 0, ',', '.') }}</strong></td>
-                        </tr>
+                            <tr>
+                                <td>
+                                    @if ($slip->kategori_gaji === 'mingguan')
+                                        @php
+                                            $startP = \Carbon\Carbon::parse($slip->periode)->startOfWeek(\Carbon\Carbon::MONDAY);
+                                            $endP   = $startP->copy()->addDays(5);
+                                        @endphp
+                                        {{ $startP->translatedFormat('d M') }} – {{ $endP->translatedFormat('d M Y') }}
+                                    @elseif ($slip->kategori_gaji === 'bulanan')
+                                        {{ \Carbon\Carbon::createFromFormat('Y-m', $slip->periode)->translatedFormat('F Y') }}
+                                    @else
+                                        {{ $slip->periode }}
+                                    @endif
+                                </td>
+
+                                <td>{{ ucfirst($slip->kategori_gaji) }}</td>
+                                <td>Rp {{ number_format($slip->gaji_pokok, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($slip->uang_makan, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($slip->asuransi_bpjs, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($slip->uang_transport, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($slip->lembur, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($slip->thr, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($slip->tunjangan_sewa, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($slip->tunjangan_pulsa, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($slip->insentif, 0, ',', '.') }}</td>
+                                <td><strong>Rp {{ number_format($slip->total_dibayar, 0, ',', '.') }}</strong></td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
             </td>
         </tr>
-        @endforeach
-    </tbody>
-    <tfoot>
-        <tr>
-            <td colspan="8" class="text-end"><strong>Total Pengeluaran:</strong></td>
-            <td colspan="2"><strong id="total-pengeluaran">Rp {{ number_format($total, 0, ',', '.') }}</strong></td>
-        </tr>
-    </tfoot>
+    @endforeach
+</tbody>
+<tfoot>
+    <tr>
+        <td colspan="13" class="text-end"><strong>Total Pengeluaran:</strong></td>
+        <td colspan="2"><strong id="total-pengeluaran">Rp {{ number_format($total, 0, ',', '.') }}</strong></td>
+    </tr>
+</tfoot>
 </table>
 
     </div>
