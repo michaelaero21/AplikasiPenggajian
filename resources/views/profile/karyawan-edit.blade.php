@@ -1,5 +1,5 @@
 @extends('layouts.karyawan')
-
+@section('title', 'Edit Profil')
 @section('content')
 <div class="container">
     <h2>Edit Profil</h2>
@@ -127,6 +127,7 @@
         </div>
     </form>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
 // ───────────────────────── Toggle semua password field
