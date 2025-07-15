@@ -94,10 +94,10 @@
             <td>Lembur</td>
             <td>: Rp {{ number_format($slip->lembur ?? 0, 0, ',', '.') }}</td>
         </tr>
-        <tr>
+        <!-- <tr>
             <td>Bonus</td>
             <td>: Rp {{ number_format($slip->bonus ?? 0, 0, ',', '.') }}</td>
-        </tr>
+        </tr> -->
         <tr>
             <td>THR</td>
             <td>: Rp {{ number_format($slip->thr ?? 0, 0, ',', '.') }}</td>
