@@ -152,7 +152,7 @@
         if (jabatan !== 'marketing') {
             requiredFields.push('uang_transportasi', 'uang_lembur');
         } else {
-            requiredFields.push('tunjangan_sewa_transport', 'tunjangan_pulsa', 'insentif');
+            requiredFields.push('tunjangan_sewa_transport', 'tunjangan_pulsa');
         }
 
         for (let id of requiredFields) {

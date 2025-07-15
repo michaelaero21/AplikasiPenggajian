@@ -134,7 +134,7 @@
         let required = ['gaji_pokok', 'uang_makan', 'asuransi', 'thr'];
 
         if (jabatan === 'marketing') {
-            required.push('tunjangan_sewa_transport', 'tunjangan_pulsa', 'insentif');
+            required.push('tunjangan_sewa_transport', 'tunjangan_pulsa');
         } else {
             required.push('uang_transportasi', 'uang_lembur');
         }
