@@ -45,7 +45,7 @@
             <option value="bulanan" {{ request('kategori_gaji') == 'bulanan' ? 'selected' : '' }}>Bulanan</option>
         </select>
     </div>
-    <!-- {{-- ── Deret 2: Range tanggal + tombol ── --}}
+    {{-- ── Deret 2: Range tanggal + tombol ── --}}
     <div class="row g-3 align-items-end mt-0">
         {{-- Dari tanggal --}}
         <div class="col-md-4 col-lg-3">
@@ -65,7 +65,7 @@
                    id="end_date"
                    class="form-control"
                    value="{{ request('end_date') }}">
-        </div> -->
+        </div>
 
     {{-- Tombol aksi --}}
     <div class="col-md-2 col-lg-2">
