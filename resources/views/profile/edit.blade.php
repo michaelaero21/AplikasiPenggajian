@@ -4,22 +4,19 @@
 <div class="container">
     <h2>Edit Profil</h2>
 
-    {{-- Notifikasi Error Khusus --}}
-    @if (session('error'))
-        <div class="alert alert-danger">
-            {{ session('error') }}
-        </div>
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    @endif
+    </div>
+@endif
 
-    {{-- Notifikasi Success --}}
-    @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    @endif
-
+    </div>
+@endif
     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
@@ -136,6 +133,7 @@
        </div>
     </form>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
    // ───────────────────────── Toggle semua password field
